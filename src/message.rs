@@ -1,0 +1,99 @@
+use crate::roll::{RollDiceResult, RollSkillResult, SuccessRate};
+use poise::serenity_prelude::{Colour, CreateEmbed, CreateEmbedFooter};
+
+#[derive(Default)]
+pub struct RollMessage {
+    pub title: String,
+    pub description: String,
+    pub footer: String,
+    pub colour: Option<u32>,
+}
+
+impl RollMessage {
+    pub fn to_embed(&self) -> CreateEmbed {
+        let mut embed = CreateEmbed::default();
+        embed = embed.title(&self.title);
+        embed = embed.description(&self.description);
+        embed = embed.footer(CreateEmbedFooter::new(&self.footer));
+        embed = embed.colour(match self.colour {
+            None => Colour::from(SuccessRate::Success.hex()),
+            Some(colour) => Colour::from(colour),
+        });
+        embed
+    }
+}
+
+pub fn format_skill(query: String, roll_result: RollSkillResult) -> CreateEmbed {
+    let mut roll_message = RollMessage::default();
+
+    let mut rolls_str = roll_result
+        .ten_rolls
+        .iter()
+        .fold(String::new(), |s, el| format!("{s} [ {el}0 ]"));
+    rolls_str = format!(
+        "{rolls_str} [ {one_roll} ]",
+        one_roll = roll_result.one_roll
+    );
+    if let Some(ref success_rate) = roll_result.success_rate {
+        roll_message.title = format!("**{}**", success_rate);
+    }
+    let mut description = format!("**{}**", roll_result.result);
+    let mut footer = String::new();
+    let threshold = roll_result.threshold;
+    let hard_threshold = threshold / 2;
+    let extreme_threshold = threshold / 5;
+    if roll_result.result > threshold {
+        footer = format!("{} points to Success", roll_result.result - threshold);
+    } else if roll_result.result > hard_threshold {
+        footer = format!(
+            "{} points to Hard Success",
+            roll_result.result - hard_threshold
+        );
+    } else if roll_result.result > extreme_threshold {
+        footer = format!(
+            "{} points to Extreme Success",
+            roll_result.result - extreme_threshold
+        );
+    }
+    footer = format!(
+        "{}\nThreshold: {} / {} / {}",
+        footer, threshold, hard_threshold, extreme_threshold
+    );
+    if roll_result.penalty != 0 {
+        footer = format!("{}\nPenalty dice: {}", footer, roll_result.penalty);
+    }
+    if roll_result.bonus != 0 {
+        footer = format!("{}\nBonus dice: {}", footer, roll_result.bonus);
+    }
+    footer = format!("{}\nQuery: \"{}\"", footer, query);
+    description = format!("{}\nRolls: {}", description, rolls_str);
+
+    roll_message.description = description;
+    roll_message.footer = footer;
+    if let Some(ref success_rate) = roll_result.success_rate {
+        roll_message.colour = Some(success_rate.hex());
+    }
+    roll_message.to_embed()
+}
+
+pub fn format_dice(query: String, roll_result: RollDiceResult) -> CreateEmbed {
+    let mut roll_message = RollMessage::default();
+
+    let title = format!("**{}**", roll_result.result);
+
+    let mut description = roll_result
+        .rolls
+        .iter()
+        .fold("Rolls:".to_string(), |s, v| format!("{s} [ {v} ]"));
+    if let Some(modifier) = roll_result.modifier {
+        description = format!(
+            "{description} {sign} {modifier}",
+            sign = if modifier > 0 { "+" } else { "-" },
+            modifier = modifier.abs()
+        );
+    }
+    roll_message.title = title;
+    roll_message.description = description;
+    roll_message.footer = format!("Query: {query}");
+    roll_message.to_embed()
+}
