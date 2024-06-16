@@ -5,7 +5,6 @@ use std::{
 
 use rand::prelude::*;
 
-#[derive(Debug)]
 pub enum SuccessRate {
     CriticalFailure,
     Failure,
@@ -41,7 +40,6 @@ impl SuccessRate {
     }
 }
 
-#[derive(Debug)]
 pub struct RollSkillResult {
     pub result: i32,
     pub one_roll: i32,
@@ -52,12 +50,9 @@ pub struct RollSkillResult {
     pub success_rate: Option<SuccessRate>,
 }
 
-#[derive(Debug)]
 pub struct RollDiceResult {
     pub result: i32,
     pub rolls: Vec<i32>,
-    pub dice_count: i32,
-    pub sides: i32,
     pub modifier: Option<i32>,
 }
 
@@ -78,8 +73,6 @@ pub fn roll_dice(dice_count: i32, sides: i32, modifier: Option<i32>) -> RollDice
     RollDiceResult {
         result,
         rolls: rolled,
-        dice_count,
-        sides,
         modifier,
     }
 }
