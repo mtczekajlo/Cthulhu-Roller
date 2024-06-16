@@ -4,8 +4,18 @@
 
 ## Installation
 
-Needs environment variable `DISCORD_TOKEN` to be set.
+[shuttle.rs quick start](<https://docs.shuttle.rs/getting-started/quick-start>)
 
 ## Usage
 
-Created for simplicity. Rolls a d100 with optional bonus or penalty dice, and optional threshold for determining levels of success or failure.
+```text
+/roll 2d4+4
+```
+
+![roll](docs/roll.png)
+
+```text
+/croll 60ppb
+```
+
+![croll](docs/croll.png)
