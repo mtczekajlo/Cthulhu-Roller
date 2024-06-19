@@ -48,12 +48,13 @@ async fn croll(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
 
 #[poise::command(slash_command)]
 async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
-    let pattern = r"^(\d+)?[kd](\d+)([+-]\d+)?$";
+    let pattern = r"^(\d+)?[kd](\d+)(x\d+)?([+-]\d+)?$";
     let re = Regex::new(pattern).unwrap();
     let dice_stripped = dice.replace(' ', "");
     let captures = re
         .captures(&dice_stripped)
         .ok_or(format!("Invalid query: \"{dice_stripped}\""))?;
+    println!("{:?}", captures);
     let dice_count = match captures.get(1) {
         Some(m) => m.as_str().parse()?,
         None => 1,
@@ -63,11 +64,15 @@ async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
         .ok_or("No dice type")?
         .as_str()
         .parse::<i32>()?;
-    let modifier = match captures.get(3) {
+    let multiplier = match captures.get(3) {
+        Some(m) => Some(m.as_str().replace('x', "").parse()?),
+        None => None,
+    };
+    let modifier = match captures.get(4) {
         Some(m) => Some(m.as_str().parse()?),
         None => None,
     };
-    let roll_result = roll_dice(dice_count, sides, modifier);
+    let roll_result = roll_dice(dice_count, sides, modifier, multiplier);
     ctx.send(CreateReply::default().embed(format_dice(dice, roll_result)))
         .await?;
     Ok(())

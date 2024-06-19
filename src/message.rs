@@ -84,7 +84,10 @@ pub fn format_dice(query: String, roll_result: RollDiceResult) -> CreateEmbed {
     let mut description = roll_result
         .rolls
         .iter()
-        .fold("Rolls:".to_string(), |s, v| format!("{s} [ {v} ]"));
+        .fold("".to_string(), |s, v| format!("{s} [ {v} ]"));
+    if let Some(multiplier) = roll_result.multiplier {
+        description = format!("( {description} ) x {multiplier}");
+    }
     if let Some(modifier) = roll_result.modifier {
         description = format!(
             "{description} {sign} {modifier}",
@@ -92,6 +95,7 @@ pub fn format_dice(query: String, roll_result: RollDiceResult) -> CreateEmbed {
             modifier = modifier.abs()
         );
     }
+    description = format!("Rolls: {description}");
     roll_message.title = title;
     roll_message.description = description;
     roll_message.footer = format!("Query: {query}");

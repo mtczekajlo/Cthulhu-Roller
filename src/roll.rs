@@ -54,6 +54,7 @@ pub struct RollDiceResult {
     pub result: i32,
     pub rolls: Vec<i32>,
     pub modifier: Option<i32>,
+    pub multiplier: Option<i32>,
 }
 
 fn roll(min: i32, max: i32) -> i32 {
@@ -64,16 +65,23 @@ pub fn roll_die(sides: i32) -> i32 {
     roll(1, sides)
 }
 
-pub fn roll_dice(dice_count: i32, sides: i32, modifier: Option<i32>) -> RollDiceResult {
+pub fn roll_dice(
+    dice_count: i32,
+    sides: i32,
+    modifier: Option<i32>,
+    multiplier: Option<i32>,
+) -> RollDiceResult {
     let mut rolled: Vec<i32> = Vec::new();
     for _ in 0..dice_count {
         rolled.push(roll_die(sides));
     }
-    let result: i32 = rolled.iter().sum::<i32>() + modifier.unwrap_or(0);
+    let sum = rolled.iter().sum::<i32>();
+    let result: i32 = sum * multiplier.unwrap_or(1) + modifier.unwrap_or(0);
     RollDiceResult {
         result,
         rolls: rolled,
         modifier,
+        multiplier,
     }
 }
 
