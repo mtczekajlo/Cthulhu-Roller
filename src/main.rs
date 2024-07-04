@@ -17,7 +17,36 @@ use roll::{roll_dice, roll_skill};
 mod message;
 use message::{format_dice, format_skill};
 
-#[poise::command(slash_command)]
+#[poise::command(slash_command, track_edits)]
+/// Use `/help <command>` to get more help.
+pub async fn help(ctx: Context<'_>, command: Option<String>) -> Result<(), Error> {
+    let configuration = poise::builtins::HelpConfiguration {
+        ..Default::default()
+    };
+    poise::builtins::help(ctx, command.as_deref(), configuration).await?;
+    Ok(())
+}
+
+#[poise::command(slash_command, track_edits)]
+/// Call of Cthulhu 7E skill test roller with optional bonus and penalty dice.
+///
+/// Bonus and penalty dice are being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold 70, you've been aiming entire previous round (bonus), target is really big (bonus) but moving fast (penalty) so you can roll 70bbp.
+///
+/// Syntax: `<threshold>` `<bonus die>/<penalty die>...`
+///
+/// Examples:
+/// `50`, `50p`, `70bb`, `20bbppp`
+///
+/// `/croll 60ppb` results with:
+/// ```
+/// Success
+/// 38
+/// Rolls: [ 30 ] [ 20 ] [ 8 ]
+/// 8 points to Hard Success
+/// Threshold: 60 / 30 / 12
+/// Penalty dice: 1
+/// Query: "60ppb"
+/// ```
 async fn croll(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
     let pattern = r"^(\d+)([bp]+)?$";
     let re = Regex::new(pattern).unwrap();
@@ -46,7 +75,20 @@ async fn croll(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command)]
+#[poise::command(slash_command, track_edits)]
+/// Generic dice roller with optional multiplier and/or modifier.
+///
+/// Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<optional modifier>`
+///
+/// Examples:
+/// `2d4`, `3k6`, `24k6+10`, `12d8x3`, `6d6x6+6`
+///
+/// `/roll 3d6x5+1` results with:
+/// ```
+/// 71
+/// Rolls: ( [ 5 ] [ 6 ] [ 3 ] ) x 5 + 1
+/// Query: "3d6x5+1"
+/// ```
 async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
     let pattern = r"^(\d+)?[kd](\d+)(x\d+)?([+-]\d+)?$";
     let re = Regex::new(pattern).unwrap();
@@ -86,7 +128,7 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![croll(), roll()],
+            commands: vec![croll(), roll(), help()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {

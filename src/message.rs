@@ -98,6 +98,6 @@ pub fn format_dice(query: String, roll_result: RollDiceResult) -> CreateEmbed {
     description = format!("Rolls: {description}");
     roll_message.title = title;
     roll_message.description = description;
-    roll_message.footer = format!("Query: {query}");
+    roll_message.footer = format!("Query: \"{query}\"");
     roll_message.to_embed()
 }
