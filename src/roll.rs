@@ -58,7 +58,7 @@ pub struct RollDiceResult {
 }
 
 fn roll(min: i32, max: i32) -> i32 {
-    rand::thread_rng().gen_range(min..(max + 1))
+    rand::rng().random_range(min..(max + 1))
 }
 
 pub fn roll_die(sides: i32) -> i32 {

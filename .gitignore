@@ -1,3 +1,4 @@
-/target
 .shuttle-storage
+.shuttle*
+/target
 Secrets*.toml
