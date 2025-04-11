@@ -39,3 +39,19 @@ Examples:
 ```
 
 ![roll](docs/roll.png)
+
+### Initiative
+
+Call of Cthulhu 7E initiative test roller with optional bonus and penalty dice.
+
+Initiative order is defined by dexterity test success level, dexterity value and lowest roll value.
+
+Bonus and penalty dice are being resolved automatically for easier adding circumstances of the roll, for example: you gain bonus die for initiative roll for being prepared (armed) at the beginning of fight. (see `/croll` command)
+
+Syntax: `<character_name> <dexterity> <character_name> <dexterity> ...`
+
+```text
+/initiative Anna 50 Brian 60 Celine 60 Douglas 70 Emma 50 Frank 50 George 50
+```
+
+![initiative](docs/initiative.png)
