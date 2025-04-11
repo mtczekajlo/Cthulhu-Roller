@@ -5,7 +5,8 @@ use std::{
 
 use rand::prelude::*;
 
-pub enum SuccessRate {
+#[derive(PartialOrd, Ord, PartialEq, Eq)]
+pub enum SuccessLevel {
     CriticalFailure,
     Failure,
     Success,
@@ -14,7 +15,7 @@ pub enum SuccessRate {
     CriticalSuccess,
 }
 
-impl Display for SuccessRate {
+impl Display for SuccessLevel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
             Self::CriticalFailure => "CRITICAL FAILURE!",
@@ -27,34 +28,90 @@ impl Display for SuccessRate {
     }
 }
 
-impl SuccessRate {
+impl SuccessLevel {
     pub fn hex(&self) -> u32 {
         match &self {
             Self::CriticalFailure => 0xBE29EC,
             Self::Failure => 0x800080,
             Self::Success => 0x415D43,
             Self::HardSuccess => 0x709775,
-            SuccessRate::ExtremeSuccess => 0x8FB996,
+            Self::ExtremeSuccess => 0x8FB996,
             Self::CriticalSuccess => 0xB3CBB9,
         }
     }
 }
 
-pub struct RollSkillResult {
+#[derive(PartialEq, Eq)]
+pub struct SkillResult {
+    pub success_level: SuccessLevel,
     pub result: i32,
     pub one_roll: i32,
     pub ten_rolls: Vec<i32>,
     pub threshold: i32,
     pub penalty: i32,
     pub bonus: i32,
-    pub success_rate: Option<SuccessRate>,
 }
 
-pub struct RollDiceResult {
+impl PartialOrd for SkillResult {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for SkillResult {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.success_level.cmp(&other.success_level) {
+            Ordering::Equal => match self.threshold.cmp(&other.threshold) {
+                Ordering::Equal => self.result.cmp(&other.result),
+                other => other.reverse(),
+            },
+            other => other.reverse(),
+        }
+    }
+}
+
+pub struct DiceResult {
     pub result: i32,
     pub rolls: Vec<i32>,
     pub modifier: Option<i32>,
     pub multiplier: Option<i32>,
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub struct Character {
+    pub result: SkillResult,
+    pub name: String,
+}
+
+impl Display for Character {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} ({}) [Dex:{} Roll:{}]",
+            &self.name, self.result.success_level, self.result.threshold, self.result.result
+        )?;
+        match self.result.success_level {
+            SuccessLevel::CriticalSuccess => {
+                write!(f, " (bonus die to 1. action)")
+            }
+            SuccessLevel::CriticalFailure => {
+                write!(f, " (lose 1. turn)")
+            }
+            _ => Ok(()),
+        }
+    }
+}
+
+pub struct InitiativeResult {
+    pub characters: Vec<Character>,
+}
+
+impl InitiativeResult {
+    pub fn new(characters: Vec<Character>) -> Self {
+        let mut ir = InitiativeResult { characters };
+        ir.characters.sort();
+        ir
+    }
 }
 
 fn roll(min: i32, max: i32) -> i32 {
@@ -70,14 +127,14 @@ pub fn roll_dice(
     sides: i32,
     modifier: Option<i32>,
     multiplier: Option<i32>,
-) -> RollDiceResult {
+) -> DiceResult {
     let mut rolled: Vec<i32> = Vec::new();
     for _ in 0..dice_count {
         rolled.push(roll_die(sides));
     }
     let sum = rolled.iter().sum::<i32>();
     let result: i32 = sum * multiplier.unwrap_or(1) + modifier.unwrap_or(0);
-    RollDiceResult {
+    DiceResult {
         result,
         rolls: rolled,
         modifier,
@@ -93,7 +150,7 @@ fn reduce_dice(penalty_dice: i32, bonus_dice: i32) -> (i32, i32) {
     }
 }
 
-pub fn roll_skill(threshold: i32, penalty_dice: i32, bonus_dice: i32) -> RollSkillResult {
+pub fn roll_skill(threshold: i32, penalty_dice: i32, bonus_dice: i32) -> SkillResult {
     let (penalty, bonus) = reduce_dice(penalty_dice, bonus_dice);
     let one_result = roll(0, 9);
     let mut ten_results = vec![roll(0, 9)];
@@ -112,42 +169,42 @@ pub fn roll_skill(threshold: i32, penalty_dice: i32, bonus_dice: i32) -> RollSki
     }
 
     let result: i32;
-    let success_rate: Option<SuccessRate>;
+    let success_level: SuccessLevel;
 
     match (one_result, ten_result) {
         (0, 0) => {
             result = 100;
-            success_rate = Some(SuccessRate::CriticalFailure);
+            success_level = SuccessLevel::CriticalFailure;
         }
         (1, 0) => {
             result = 1;
-            success_rate = Some(SuccessRate::CriticalSuccess);
+            success_level = SuccessLevel::CriticalSuccess;
         }
         _ => {
             result = ten_result * 10 + one_result;
             if threshold < 50 && result >= 96 {
-                success_rate = Some(SuccessRate::CriticalFailure);
+                success_level = SuccessLevel::CriticalFailure;
             } else if result <= threshold / 5 {
-                success_rate = Some(SuccessRate::ExtremeSuccess);
+                success_level = SuccessLevel::ExtremeSuccess;
             } else if result <= threshold / 2 {
-                success_rate = Some(SuccessRate::HardSuccess);
+                success_level = SuccessLevel::HardSuccess;
             } else if result <= threshold {
-                success_rate = Some(SuccessRate::Success);
+                success_level = SuccessLevel::Success;
             } else {
-                success_rate = Some(SuccessRate::Failure)
+                success_level = SuccessLevel::Failure
             }
         }
     }
 
     ten_results.sort_by_key(|el| Reverse(*el));
 
-    RollSkillResult {
+    SkillResult {
         result,
         one_roll: one_result,
         ten_rolls: ten_results,
         threshold,
         penalty,
         bonus,
-        success_rate,
+        success_level,
     }
 }

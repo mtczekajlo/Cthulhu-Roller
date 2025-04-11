@@ -1,4 +1,4 @@
-use crate::roll::{RollDiceResult, RollSkillResult, SuccessRate};
+use crate::roll::{DiceResult, InitiativeResult, SkillResult, SuccessLevel};
 use poise::serenity_prelude::{Colour, CreateEmbed, CreateEmbedFooter};
 
 #[derive(Default)]
@@ -16,14 +16,14 @@ impl RollMessage {
         embed = embed.description(&self.description);
         embed = embed.footer(CreateEmbedFooter::new(&self.footer));
         embed = embed.colour(match self.colour {
-            None => Colour::from(SuccessRate::Success.hex()),
+            None => Colour::from(SuccessLevel::Success.hex()),
             Some(colour) => Colour::from(colour),
         });
         embed
     }
 }
 
-pub fn format_skill(query: String, roll_result: RollSkillResult) -> CreateEmbed {
+pub fn format_skill(query: String, roll_result: SkillResult) -> CreateEmbed {
     let mut roll_message = RollMessage::default();
 
     let mut rolls_str = roll_result
@@ -34,9 +34,8 @@ pub fn format_skill(query: String, roll_result: RollSkillResult) -> CreateEmbed 
         "{rolls_str} [ {one_roll} ]",
         one_roll = roll_result.one_roll
     );
-    if let Some(ref success_rate) = roll_result.success_rate {
-        roll_message.title = format!("**{}**", success_rate);
-    }
+    roll_message.title = format!("**{}**", roll_result.success_level);
+    roll_message.colour = Some(roll_result.success_level.hex());
     let mut description = format!("**{}**", roll_result.result);
     let mut footer = String::new();
     let threshold = roll_result.threshold;
@@ -70,13 +69,10 @@ pub fn format_skill(query: String, roll_result: RollSkillResult) -> CreateEmbed 
 
     roll_message.description = description;
     roll_message.footer = footer;
-    if let Some(ref success_rate) = roll_result.success_rate {
-        roll_message.colour = Some(success_rate.hex());
-    }
     roll_message.to_embed()
 }
 
-pub fn format_dice(query: String, roll_result: RollDiceResult) -> CreateEmbed {
+pub fn format_dice(query: String, roll_result: DiceResult) -> CreateEmbed {
     let mut roll_message = RollMessage::default();
 
     let title = format!("**{}**", roll_result.result);
@@ -100,4 +96,20 @@ pub fn format_dice(query: String, roll_result: RollDiceResult) -> CreateEmbed {
     roll_message.description = description;
     roll_message.footer = format!("Query: \"{query}\"");
     roll_message.to_embed()
+}
+
+pub fn format_initiative(query: String, roll_result: InitiativeResult) -> CreateEmbed {
+    let mut message = RollMessage::default();
+
+    let title = format!("Initiative");
+
+    let description = roll_result
+        .characters
+        .iter()
+        .enumerate()
+        .fold("".to_string(), |s, v| format!("{}\n{}. {}", s, v.0, v.1));
+    message.title = title;
+    message.description = description;
+    message.footer = format!("Query: \"{query}\"");
+    message.to_embed()
 }
