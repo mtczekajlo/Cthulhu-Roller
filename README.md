@@ -32,7 +32,7 @@ Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<op
 
 Examples:
 
-`2d4`, `3k6`, `24k6+10`, `12d8x3`, `6d6x6+6`
+`2d4`, `3k6`, `24k6+10`, `12d8x3`, `4k12*2`, `6d6x6+6`
 
 ```text
 /roll 3d6x5+1

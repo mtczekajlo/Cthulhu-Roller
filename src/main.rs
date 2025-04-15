@@ -99,7 +99,7 @@ fn croll_impl(threshold: String) -> Result<SkillResult, Error> {
 /// Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<optional modifier>`
 ///
 /// Examples:
-/// `2d4`, `3k6`, `24k6+10`, `12d8x3`, `6d6x6+6`
+/// `2d4`, `3k6`, `24k6+10`, `12d8x3`, `4k12*2`, `6d6x6+6`
 ///
 /// `/roll 3d6x5+1` results with:
 /// ```
@@ -108,7 +108,7 @@ fn croll_impl(threshold: String) -> Result<SkillResult, Error> {
 /// Query: "3d6x5+1"
 /// ```
 async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
-    let pattern = r"^(\d+)?[kd](\d+)(x\d+)?([+-]\d+)?$";
+    let pattern = r"^(\d+)?[kd](\d+)([x\*](\d+))?([+-]\d+)?$";
     let re = Regex::new(pattern).unwrap();
     let dice_stripped = dice.replace(' ', "");
     let captures = re
@@ -125,10 +125,13 @@ async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
         .as_str()
         .parse::<i32>()?;
     let multiplier = match captures.get(3) {
-        Some(m) => Some(m.as_str().replace('x', "").parse()?),
+        Some(_) => match captures.get(4) {
+            Some(m) => Some(m.as_str().parse()?),
+            None => None,
+        },
         None => None,
     };
-    let modifier = match captures.get(4) {
+    let modifier = match captures.get(5) {
         Some(m) => Some(m.as_str().parse()?),
         None => None,
     };
