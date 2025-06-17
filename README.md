@@ -4,9 +4,17 @@
 
 ## Installation
 
-[shuttle.rs quick start](<https://docs.shuttle.rs/getting-started/quick-start>)
+[Discord OAuth2](https://discord.com/developers/docs/topics/oauth2)
+
+[Shuttle Quick Start](https://docs.shuttle.rs/getting-started/quick-start)
 
 ## Usage
+
+In grim depths of cold waters always seek
+
+```text
+/help
+```
 
 ### Croll
 
@@ -24,21 +32,17 @@ Examples:
 
 ![croll](docs/croll.png)
 
-### Roll
+### Improve 
 
-Generic dice roller with multiplier and modifier (modifier is not multiplied).
+Call of Cthulhu 7E improve skill test.
 
-Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<optional modifier>`
-
-Examples:
-
-`2d4`, `3k6`, `24k6+10`, `12d8x3`, `4k12*2`, `6d6x6+6`
+Syntax: `<threshold>`
 
 ```text
-/roll 3d6x5+1
+/improve 60
 ```
 
-![roll](docs/roll.png)
+![improve](docs/improve.png)
 
 ### Initiative
 
@@ -56,14 +60,29 @@ Syntax: `<character_name> <dexterity> <character_name> <dexterity> ...`
 
 ![initiative](docs/initiative.png)
 
-### Improve 
+### Levels 
 
-Call of Cthulhu 7E improve skill test.
+Call of Cthulhu 7E success levels of threshold.
 
 Syntax: `<threshold>`
 
 ```text
-/improve 60
+/levels 50
+```
+![levels](docs/levels.png)
+
+### Roll
+
+Generic dice roller with multiplier and modifier (modifier is not multiplied).
+
+Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<optional modifier>`
+
+Examples:
+
+`2d4`, `3k6`, `24k6+10`, `12d8x3`, `4k12*2`, `6d6x6+6`
+
+```text
+/roll 3d6x5+1
 ```
 
-![improve](docs/improve.png)
+![roll](docs/roll.png)
