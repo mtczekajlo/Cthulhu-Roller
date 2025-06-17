@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
+
+echo "Cargo sort $* START"
+cargo sort --check "$@"
+echo "Cargo sort $* OK"

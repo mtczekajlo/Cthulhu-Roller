@@ -15,10 +15,10 @@ type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
 mod roll;
-use roll::{roll_dice, roll_skill, Character, InitiativeResult, SkillResult};
+use roll::{improve_skill, roll_dice, roll_skill, Character, InitiativeResult, SkillResult};
 
 mod message;
-use message::{format_dice, format_initiative, format_skill};
+use message::{format_dice, format_improve, format_initiative, format_skill};
 
 async fn autocomplete_help<'a>(
     _ctx: Context<'_>,
@@ -91,6 +91,38 @@ fn croll_impl(threshold: String) -> Result<SkillResult, Error> {
         }
     }
     Ok(roll_skill(threshold_int, penalty, bonus))
+}
+
+#[poise::command(slash_command, track_edits)]
+/// Call of Cthulhu 7E improve skill test.
+///
+/// Syntax: `<threshold>`
+///
+/// `/improve 60` results with:
+/// ```
+/// Success
+/// 67
+/// Threshold: 60
+/// Query: "60"
+/// ```
+async fn improve(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
+    let pattern = r"^\D*(\d+)\D*$";
+    let re = Regex::new(pattern).unwrap();
+    let threshold_stripped = threshold.replace(' ', "");
+    let captures = re
+        .captures(&threshold_stripped)
+        .ok_or(format!("Invalid query: \"{threshold_stripped}\""))?;
+    let threshold_int = captures
+        .get(1)
+        .ok_or("Invalid threshold:")?
+        .as_str()
+        .parse()?;
+    ctx.send(CreateReply::default().embed(format_improve(
+        threshold.clone(),
+        improve_skill(threshold_int),
+    )))
+    .await?;
+    Ok(())
 }
 
 #[poise::command(slash_command, track_edits)]
@@ -197,7 +229,7 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![croll(), roll(), initiative(), help()],
+            commands: vec![croll(), roll(), initiative(), improve(), help()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {

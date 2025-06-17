@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
+
+scripts/format
+scripts/check
+scripts/check --release
+scripts/clippy
+scripts/clippy --release
+scripts/cargo-sort
+scripts/udeps
