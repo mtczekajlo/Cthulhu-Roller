@@ -2,14 +2,14 @@ use crate::roll::{DiceResult, ImproveResult, InitiativeResult, SkillResult, Succ
 use poise::serenity_prelude::{Colour, CreateEmbed, CreateEmbedFooter};
 
 #[derive(Default)]
-pub struct RollMessage {
+pub struct Message {
     pub title: String,
     pub description: String,
     pub footer: String,
     pub colour: Option<u32>,
 }
 
-impl RollMessage {
+impl Message {
     pub fn to_embed(&self) -> CreateEmbed {
         let mut embed = CreateEmbed::default();
         embed = embed.title(&self.title);
@@ -24,7 +24,7 @@ impl RollMessage {
 }
 
 pub fn format_skill(query: String, roll_result: SkillResult) -> CreateEmbed {
-    let mut message = RollMessage::default();
+    let mut message = Message::default();
 
     let mut rolls_str = roll_result
         .ten_rolls
@@ -73,7 +73,7 @@ pub fn format_skill(query: String, roll_result: SkillResult) -> CreateEmbed {
 }
 
 pub fn format_dice(query: String, roll_result: DiceResult) -> CreateEmbed {
-    let mut message = RollMessage::default();
+    let mut message = Message::default();
 
     let title = format!("**{}**", roll_result.result);
 
@@ -99,7 +99,7 @@ pub fn format_dice(query: String, roll_result: DiceResult) -> CreateEmbed {
 }
 
 pub fn format_initiative(query: String, roll_result: InitiativeResult) -> CreateEmbed {
-    let mut message = RollMessage::default();
+    let mut message = Message::default();
 
     let title = "Initiative".to_string();
 
@@ -115,7 +115,7 @@ pub fn format_initiative(query: String, roll_result: InitiativeResult) -> Create
 }
 
 pub fn format_improve(query: String, improve_result: ImproveResult) -> CreateEmbed {
-    let message = RollMessage {
+    let message = Message {
         title: format!("**{}**", improve_result.success_level),
         colour: Some(improve_result.success_level.hex()),
         description: format!("**{}**", improve_result.result),
@@ -123,6 +123,16 @@ pub fn format_improve(query: String, improve_result: ImproveResult) -> CreateEmb
             "Threshold: {}\nQuery: \"{}\"",
             improve_result.threshold, query
         ),
+    };
+    message.to_embed()
+}
+
+pub fn format_levels(query: String, threshold: i32) -> CreateEmbed {
+    let message = Message {
+        title: format!("**{} / {} / {}**", threshold, threshold / 2, threshold / 5),
+        colour: None,
+        description: String::new(),
+        footer: format!("Threshold: {}\nQuery: \"{}\"", threshold, query),
     };
     message.to_embed()
 }
