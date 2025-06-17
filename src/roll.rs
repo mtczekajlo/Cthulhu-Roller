@@ -76,6 +76,11 @@ pub struct DiceResult {
     pub modifier: Option<i32>,
     pub multiplier: Option<i32>,
 }
+pub struct ImproveResult {
+    pub result: i32,
+    pub success_level: SuccessLevel,
+    pub threshold: i32,
+}
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct Character {
@@ -206,5 +211,18 @@ pub fn roll_skill(threshold: i32, penalty_dice: i32, bonus_dice: i32) -> SkillRe
         penalty,
         bonus,
         success_level,
+    }
+}
+
+pub fn improve_skill(threshold: i32) -> ImproveResult {
+    let result = roll(1, 100);
+    let success_level = match result > threshold || result > 95 {
+        true => SuccessLevel::Success,
+        _ => SuccessLevel::Failure,
+    };
+    ImproveResult {
+        result,
+        success_level,
+        threshold,
     }
 }

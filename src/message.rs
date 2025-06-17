@@ -1,4 +1,4 @@
-use crate::roll::{DiceResult, InitiativeResult, SkillResult, SuccessLevel};
+use crate::roll::{DiceResult, ImproveResult, InitiativeResult, SkillResult, SuccessLevel};
 use poise::serenity_prelude::{Colour, CreateEmbed, CreateEmbedFooter};
 
 #[derive(Default)]
@@ -24,7 +24,7 @@ impl RollMessage {
 }
 
 pub fn format_skill(query: String, roll_result: SkillResult) -> CreateEmbed {
-    let mut roll_message = RollMessage::default();
+    let mut message = RollMessage::default();
 
     let mut rolls_str = roll_result
         .ten_rolls
@@ -34,8 +34,8 @@ pub fn format_skill(query: String, roll_result: SkillResult) -> CreateEmbed {
         "{rolls_str} [ {one_roll} ]",
         one_roll = roll_result.one_roll
     );
-    roll_message.title = format!("**{}**", roll_result.success_level);
-    roll_message.colour = Some(roll_result.success_level.hex());
+    message.title = format!("**{}**", roll_result.success_level);
+    message.colour = Some(roll_result.success_level.hex());
     let mut description = format!("**{}**", roll_result.result);
     let mut footer = String::new();
     let threshold = roll_result.threshold;
@@ -67,13 +67,13 @@ pub fn format_skill(query: String, roll_result: SkillResult) -> CreateEmbed {
     footer = format!("{}\nQuery: \"{}\"", footer, query);
     description = format!("{}\nRolls: {}", description, rolls_str);
 
-    roll_message.description = description;
-    roll_message.footer = footer;
-    roll_message.to_embed()
+    message.description = description;
+    message.footer = footer;
+    message.to_embed()
 }
 
 pub fn format_dice(query: String, roll_result: DiceResult) -> CreateEmbed {
-    let mut roll_message = RollMessage::default();
+    let mut message = RollMessage::default();
 
     let title = format!("**{}**", roll_result.result);
 
@@ -92,16 +92,16 @@ pub fn format_dice(query: String, roll_result: DiceResult) -> CreateEmbed {
         );
     }
     description = format!("Rolls: {description}");
-    roll_message.title = title;
-    roll_message.description = description;
-    roll_message.footer = format!("Query: \"{query}\"");
-    roll_message.to_embed()
+    message.title = title;
+    message.description = description;
+    message.footer = format!("Query: \"{query}\"");
+    message.to_embed()
 }
 
 pub fn format_initiative(query: String, roll_result: InitiativeResult) -> CreateEmbed {
     let mut message = RollMessage::default();
 
-    let title = format!("Initiative");
+    let title = "Initiative".to_string();
 
     let description = roll_result
         .characters
@@ -111,5 +111,18 @@ pub fn format_initiative(query: String, roll_result: InitiativeResult) -> Create
     message.title = title;
     message.description = description;
     message.footer = format!("Query: \"{query}\"");
+    message.to_embed()
+}
+
+pub fn format_improve(query: String, improve_result: ImproveResult) -> CreateEmbed {
+    let message = RollMessage {
+        title: format!("**{}**", improve_result.success_level),
+        colour: Some(improve_result.success_level.hex()),
+        description: format!("**{}**", improve_result.result),
+        footer: format!(
+            "Threshold: {}\nQuery: \"{}\"",
+            improve_result.threshold, query
+        ),
+    };
     message.to_embed()
 }

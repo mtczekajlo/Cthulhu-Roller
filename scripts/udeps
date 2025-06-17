@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
+
+echo "Udeps $* START"
+cargo +nightly udeps "$@"
+echo "Udeps $* OK"

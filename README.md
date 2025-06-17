@@ -55,3 +55,15 @@ Syntax: `<character_name> <dexterity> <character_name> <dexterity> ...`
 ```
 
 ![initiative](docs/initiative.png)
+
+### Improve 
+
+Call of Cthulhu 7E improve skill test.
+
+Syntax: `<threshold>`
+
+```text
+/improve 60
+```
+
+![improve](docs/improve.png)
