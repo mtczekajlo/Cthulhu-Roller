@@ -20,11 +20,13 @@ use roll::{improve_skill, roll_dice, roll_skill, Character, InitiativeResult, Sk
 mod message;
 use message::{format_dice, format_improve, format_initiative, format_skill};
 
+use crate::message::format_levels;
+
 async fn autocomplete_help<'a>(
     _ctx: Context<'_>,
     partial: &'a str,
 ) -> impl Stream<Item = String> + 'a {
-    futures::stream::iter(&["croll", "roll", "initiative"])
+    futures::stream::iter(&["croll", "improve", "initiative", "levels", "roll"])
         .filter(move |name| futures::future::ready(name.starts_with(partial)))
         .map(|name| name.to_string())
 }
@@ -221,6 +223,34 @@ async fn initiative(ctx: Context<'_>, input: String) -> Result<(), Error> {
     Ok(())
 }
 
+#[poise::command(slash_command, track_edits)]
+/// Call of Cthulhu 7E success levels of threshold.
+///
+/// Syntax: `<threshold>`
+///
+/// `/levels 50` results with:
+/// ```
+/// 50 / 25 / 10
+/// Threshold: 50
+/// Query: "50"
+/// ```
+async fn levels(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
+    let pattern = r"^\D*(\d+)\D*$";
+    let re = Regex::new(pattern).unwrap();
+    let threshold_stripped = threshold.replace(' ', "");
+    let captures = re
+        .captures(&threshold_stripped)
+        .ok_or(format!("Invalid query: \"{threshold_stripped}\""))?;
+    let threshold_int = captures
+        .get(1)
+        .ok_or("Invalid threshold:")?
+        .as_str()
+        .parse()?;
+    ctx.send(CreateReply::default().embed(format_levels(threshold.clone(), threshold_int)))
+        .await?;
+    Ok(())
+}
+
 #[shuttle_runtime::main]
 async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleSerenity {
     let discord_token = secret_store
@@ -229,7 +259,7 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![croll(), roll(), initiative(), improve(), help()],
+            commands: vec![croll(), improve(), initiative(), levels(), roll(), help()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
