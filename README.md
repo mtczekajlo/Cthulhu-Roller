@@ -18,13 +18,13 @@ In grim depths of cold waters always seek
 
 ### Croll
 
-Call of Cthulhu 7E skill test roller with bonus and penalty dice being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold `70`, you've been aiming entire previous round (`bonus`), target is really big (`bonus`) but moving fast (`penalty`) so you can roll `70bbp`.
+Call of Cthulhu 7E skill test roller with Bonus ('b' or '+') and penalty ('p', 'k' or '-') dice are being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold 70, you've been aiming entire previous round (bonus), target is really big (bonus) but moving fast (penalty) so you can roll 70bbp.
 
 Syntax: `<threshold>` `<bonus die>/<penalty die>...`
 
 Examples:
 
-`50`, `50p`, `70bb`, `20bbppp`
+`50`, `50p`, `50k`, `70bb`, `20bbppp`, `40bk`, `30+`, `20--`
 
 ```text
 /croll 60ppb

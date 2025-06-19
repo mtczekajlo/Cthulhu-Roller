@@ -47,12 +47,12 @@ pub async fn help(
 #[poise::command(slash_command, track_edits)]
 /// Call of Cthulhu 7E skill test roller with optional bonus and penalty dice.
 ///
-/// Bonus and penalty dice are being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold 70, you've been aiming entire previous round (bonus), target is really big (bonus) but moving fast (penalty) so you can roll 70bbp.
+/// Bonus ('b' or '+') and penalty ('p', 'k' or '-') dice are being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold 70, you've been aiming entire previous round (bonus), target is really big (bonus) but moving fast (penalty) so you can roll 70bbp.
 ///
-/// Syntax: `<threshold>` `<bonus die>/<penalty die>...`
+/// Syntax: `<threshold>` `<optional modifier dice symbols>...`
 ///
 /// Examples:
-/// `50`, `50p`, `70bb`, `20bbppp`
+/// `50`, `50p`, `50k`, `70bb`, `20bbppp`, `40bk`, `30+`, `20--`
 ///
 /// `/croll 60ppb` results with:
 /// ```
@@ -70,14 +70,14 @@ async fn croll(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
     Ok(())
 }
 
-fn croll_impl(threshold: String) -> Result<SkillResult, Error> {
-    let pattern = r"^(\d+)([bp]+)?$";
+fn croll_impl(query: String) -> Result<SkillResult, Error> {
+    let pattern = r"^(\d+)([bpk\+-]*)$";
     let re = Regex::new(pattern).unwrap();
-    let threshold_stripped = threshold.replace(' ', "");
+    let query = query.replace(' ', "");
     let captures = re
-        .captures(&threshold_stripped)
-        .ok_or(format!("Invalid query: \"{threshold_stripped}\""))?;
-    let threshold_int = captures
+        .captures(&query)
+        .ok_or(format!("Invalid query: \"{query}\""))?;
+    let threshold = captures
         .get(1)
         .ok_or("Invalid threshold:")?
         .as_str()
@@ -88,11 +88,17 @@ fn croll_impl(threshold: String) -> Result<SkillResult, Error> {
         None => (),
         Some(captures_match) => {
             let penalty_bonus_str = captures_match.as_str();
-            penalty = penalty_bonus_str.chars().filter(|c| *c == 'p').count() as i32;
-            bonus = penalty_bonus_str.chars().filter(|c| *c == 'b').count() as i32;
+            penalty = penalty_bonus_str
+                .chars()
+                .filter(|c| *c == 'p' || *c == 'k' || *c == '-')
+                .count() as i32;
+            bonus = penalty_bonus_str
+                .chars()
+                .filter(|c| *c == 'b' || *c == '+')
+                .count() as i32;
         }
     }
-    Ok(roll_skill(threshold_int, penalty, bonus))
+    Ok(roll_skill(threshold, penalty, bonus))
 }
 
 #[poise::command(slash_command, track_edits)]
