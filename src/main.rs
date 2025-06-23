@@ -15,24 +15,32 @@ type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
 mod roll;
-use roll::{improve_skill, roll_dice, roll_skill, Character, InitiativeResult, SkillResult};
+use roll::{
+    improve_skill, roll_dice, roll_skill, Character, DiceResult, InitiativeResult, SkillResult,
+};
 
 mod message;
-use message::{format_dice, format_improve, format_initiative, format_skill};
-
-use crate::message::format_levels;
+use message::{format_dice, format_improve, format_initiative, format_levels, format_skill};
 
 async fn autocomplete_help<'a>(
     _ctx: Context<'_>,
     partial: &'a str,
 ) -> impl Stream<Item = String> + 'a {
-    futures::stream::iter(&["croll", "improve", "initiative", "levels", "roll"])
-        .filter(move |name| futures::future::ready(name.starts_with(partial)))
-        .map(|name| name.to_string())
+    futures::stream::iter(&[
+        "croll",
+        "gm_croll",
+        "improve",
+        "initiative",
+        "levels",
+        "roll",
+        "gm_roll",
+    ])
+    .filter(move |name| futures::future::ready(name.starts_with(partial)))
+    .map(|name| name.to_string())
 }
 
-#[poise::command(slash_command, track_edits)]
 /// Use `/help <command>` to get more help.
+#[poise::command(slash_command, track_edits)]
 pub async fn help(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_help"] command: Option<String>,
@@ -44,15 +52,14 @@ pub async fn help(
     Ok(())
 }
 
-#[poise::command(slash_command, track_edits)]
 /// Call of Cthulhu 7E skill test roller with optional bonus and penalty dice.
 ///
-/// Bonus ('b' or '+') and penalty ('p', 'k' or '-') dice are being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold 70, you've been aiming entire previous round (bonus), target is really big (bonus) but moving fast (penalty) so you can roll 70bbp.
+/// Bonus ('+' or 'b') and penalty ('-', 'p' or 'k') dice are being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold 70, you've been aiming entire previous round (bonus), target is really big (bonus) but moving fast (penalty) so you can roll 70++-.
 ///
 /// Syntax: `<threshold>` `<optional modifier dice symbols>...`
 ///
 /// Examples:
-/// `50`, `50p`, `50k`, `70bb`, `20bbppp`, `40bk`, `30+`, `20--`
+/// `30+`, `20--`, `50`, `50p`, `50k`, `70bb`, `20bbppp`, `40bk`
 ///
 /// `/croll 60ppb` results with:
 /// ```
@@ -64,9 +71,28 @@ pub async fn help(
 /// Penalty dice: 1
 /// Query: "60ppb"
 /// ```
+#[poise::command(slash_command, track_edits)]
 async fn croll(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
-    ctx.send(CreateReply::default().embed(format_skill(threshold.clone(), croll_impl(threshold)?)))
-        .await?;
+    ctx.send(CreateReply::default().embed(format_skill(
+        threshold.clone(),
+        croll_impl(threshold)?,
+        true,
+    )))
+    .await?;
+    Ok(())
+}
+
+/// GM-friendly `/croll` variant
+///
+/// Same as `/croll` but with private output
+#[poise::command(slash_command, track_edits)]
+async fn gm_croll(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
+    ctx.send(CreateReply::default().ephemeral(true).embed(format_skill(
+        threshold.clone(),
+        croll_impl(threshold)?,
+        true,
+    )))
+    .await?;
     Ok(())
 }
 
@@ -101,7 +127,6 @@ fn croll_impl(query: String) -> Result<SkillResult, Error> {
     Ok(roll_skill(threshold, penalty, bonus))
 }
 
-#[poise::command(slash_command, track_edits)]
 /// Call of Cthulhu 7E improve skill test.
 ///
 /// Syntax: `<threshold>`
@@ -113,6 +138,7 @@ fn croll_impl(query: String) -> Result<SkillResult, Error> {
 /// Threshold: 60
 /// Query: "60"
 /// ```
+#[poise::command(slash_command, track_edits)]
 async fn improve(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
     let pattern = r"^\D*(\d+)\D*$";
     let re = Regex::new(pattern).unwrap();
@@ -133,7 +159,6 @@ async fn improve(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, track_edits)]
 /// Generic dice roller with optional multiplier and/or modifier.
 ///
 /// Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<optional modifier>`
@@ -147,14 +172,34 @@ async fn improve(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
 /// Rolls: ( [ 5 ] [ 6 ] [ 3 ] ) x 5 + 1
 /// Query: "3d6x5+1"
 /// ```
+#[poise::command(slash_command, track_edits)]
 async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
+    ctx.send(CreateReply::default().embed(format_dice(dice.clone(), roll_impl(dice)?, true)))
+        .await?;
+    Ok(())
+}
+
+/// GM-friendly `/roll` variant
+///
+/// Same as `/roll` but with private output
+#[poise::command(slash_command, track_edits)]
+async fn gm_roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
+    ctx.send(
+        CreateReply::default()
+            .embed(format_dice(dice.clone(), roll_impl(dice)?, true))
+            .ephemeral(true),
+    )
+    .await?;
+    Ok(())
+}
+
+fn roll_impl(dice: String) -> Result<DiceResult, Error> {
     let pattern = r"^(\d+)?[kd](\d+)([x\*](\d+))?([+-]\d+)?$";
     let re = Regex::new(pattern).unwrap();
     let dice_stripped = dice.replace(' ', "");
     let captures = re
         .captures(&dice_stripped)
         .ok_or(format!("Invalid query: \"{dice_stripped}\""))?;
-    println!("{:?}", captures);
     let dice_count = match captures.get(1) {
         Some(m) => m.as_str().parse()?,
         None => 1,
@@ -175,13 +220,9 @@ async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
         Some(m) => Some(m.as_str().parse()?),
         None => None,
     };
-    let roll_result = roll_dice(dice_count, sides, modifier, multiplier);
-    ctx.send(CreateReply::default().embed(format_dice(dice, roll_result)))
-        .await?;
-    Ok(())
+    Ok(roll_dice(dice_count, sides, modifier, multiplier))
 }
 
-#[poise::command(slash_command, track_edits)]
 /// Call of Cthulhu 7E initiative test roller with optional bonus and penalty dice.
 ///
 /// Initiative order is defined by dexterity test success level, dexterity value and lowest roll value.
@@ -202,6 +243,7 @@ async fn roll(ctx: Context<'_>, dice: String) -> Result<(), Error> {
 /// 7. George (Failure) [Dex:50 Roll:91]
 /// Query: "Anna 50 Brian 60 Celine 60 Douglas 70 Emma 50 Frank 50 George 50"
 /// ```
+#[poise::command(slash_command, track_edits)]
 async fn initiative(ctx: Context<'_>, input: String) -> Result<(), Error> {
     let words: Vec<&str> = input.split_whitespace().collect();
     if words.len() % 2 != 0 {
@@ -222,14 +264,27 @@ async fn initiative(ctx: Context<'_>, input: String) -> Result<(), Error> {
             name: name.to_string(),
         });
     }
+
+    let initiative_result = InitiativeResult::new(characters);
+    ctx.send(CreateReply::default().embed(format_initiative(
+        input.clone(),
+        initiative_result.clone(),
+        false,
+    )))
+    .await?;
     ctx.send(
-        CreateReply::default().embed(format_initiative(input, InitiativeResult::new(characters))),
+        CreateReply::default()
+            .embed(format_initiative(
+                input.clone(),
+                initiative_result.clone(),
+                true,
+            ))
+            .ephemeral(true),
     )
     .await?;
     Ok(())
 }
 
-#[poise::command(slash_command, track_edits)]
 /// Call of Cthulhu 7E success levels of threshold.
 ///
 /// Syntax: `<threshold>`
@@ -240,6 +295,7 @@ async fn initiative(ctx: Context<'_>, input: String) -> Result<(), Error> {
 /// Threshold: 50
 /// Query: "50"
 /// ```
+#[poise::command(slash_command, track_edits)]
 async fn levels(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
     let pattern = r"^\D*(\d+)\D*$";
     let re = Regex::new(pattern).unwrap();
@@ -252,8 +308,12 @@ async fn levels(ctx: Context<'_>, threshold: String) -> Result<(), Error> {
         .ok_or("Invalid threshold:")?
         .as_str()
         .parse()?;
-    ctx.send(CreateReply::default().embed(format_levels(threshold.clone(), threshold_int)))
-        .await?;
+    ctx.send(
+        CreateReply::default()
+            .embed(format_levels(threshold.clone(), threshold_int))
+            .ephemeral(true),
+    )
+    .await?;
     Ok(())
 }
 
@@ -265,7 +325,17 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![croll(), improve(), initiative(), levels(), roll(), help()],
+            commands: vec![
+                help(),
+                croll(),
+                roll(),
+                levels(),
+                improve(),
+                initiative(),
+                gm_croll(),
+                gm_roll(),
+            ],
+            on_error: |error| Box::pin(handle_error(error)),
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
@@ -282,4 +352,17 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
         .map_err(shuttle_runtime::CustomError::new)?;
 
     Ok(client.into())
+}
+
+async fn handle_error(error: poise::FrameworkError<'_, Data, Error>) {
+    if let poise::FrameworkError::Command { ctx, error, .. } = error {
+        let help_message = ctx.command().help_text.clone().unwrap_or_default();
+        let _ = ctx
+            .send(
+                poise::CreateReply::default()
+                    .content(format!("**{error}**\n\n{help_message}"))
+                    .ephemeral(true),
+            )
+            .await;
+    }
 }
