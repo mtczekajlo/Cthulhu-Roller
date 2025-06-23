@@ -5,7 +5,7 @@ use std::{
 
 use rand::prelude::*;
 
-#[derive(PartialOrd, Ord, PartialEq, Eq)]
+#[derive(PartialOrd, Ord, PartialEq, Eq, Clone)]
 pub enum SuccessLevel {
     CriticalFailure,
     Failure,
@@ -41,7 +41,7 @@ impl SuccessLevel {
     }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone)]
 pub struct SkillResult {
     pub success_level: SuccessLevel,
     pub result: i32,
@@ -70,43 +70,28 @@ impl Ord for SkillResult {
     }
 }
 
+#[derive(Clone)]
 pub struct DiceResult {
     pub result: i32,
     pub rolls: Vec<i32>,
     pub modifier: Option<i32>,
     pub multiplier: Option<i32>,
 }
+
+#[derive(Clone)]
 pub struct ImproveResult {
     pub result: i32,
     pub success_level: SuccessLevel,
     pub threshold: i32,
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct Character {
     pub result: SkillResult,
     pub name: String,
 }
 
-impl Display for Character {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{} ({}) [Dex:{} Roll:{}]",
-            &self.name, self.result.success_level, self.result.threshold, self.result.result
-        )?;
-        match self.result.success_level {
-            SuccessLevel::CriticalSuccess => {
-                write!(f, " (bonus die to 1. action)")
-            }
-            SuccessLevel::CriticalFailure => {
-                write!(f, " (lose 1. turn)")
-            }
-            _ => Ok(()),
-        }
-    }
-}
-
+#[derive(Clone)]
 pub struct InitiativeResult {
     pub characters: Vec<Character>,
 }
