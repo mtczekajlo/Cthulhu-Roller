@@ -285,6 +285,8 @@ dependencies = [
  "poise",
  "rand 0.9.1",
  "regex",
+ "serde",
+ "serde_json",
  "shuttle-runtime",
  "shuttle-serenity",
  "tabled",

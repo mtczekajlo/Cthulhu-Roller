@@ -18,12 +18,12 @@ pub enum SuccessLevel {
 impl Display for SuccessLevel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
-            Self::CriticalFailure => "CRITICAL FAILURE!",
-            Self::Failure => "Failure",
-            Self::Success => "Success",
-            Self::HardSuccess => "Hard Success! (½)",
-            Self::ExtremeSuccess => "Extreme Success! (⅕)",
-            Self::CriticalSuccess => "CRITICAL SUCCESS!",
+            Self::CriticalFailure => "🐙 CRITICAL FAILURE! 🐙",
+            Self::Failure => "❌ Failure",
+            Self::Success => "⭐ Success",
+            Self::HardSuccess => "⭐⭐ Hard Success! (½)",
+            Self::ExtremeSuccess => "⭐⭐⭐ Extreme Success! (⅕)",
+            Self::CriticalSuccess => "✨ CRITICAL SUCCESS! ✨",
         })
     }
 }
@@ -86,18 +86,18 @@ pub struct ImproveResult {
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
-pub struct Character {
+pub struct CharacterInitiative {
     pub result: SkillResult,
     pub name: String,
 }
 
 #[derive(Clone)]
 pub struct InitiativeResult {
-    pub characters: Vec<Character>,
+    pub characters: Vec<CharacterInitiative>,
 }
 
 impl InitiativeResult {
-    pub fn new(characters: Vec<Character>) -> Self {
+    pub fn new(characters: Vec<CharacterInitiative>) -> Self {
         let mut ir = InitiativeResult { characters };
         ir.characters.sort();
         ir
