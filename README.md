@@ -16,7 +16,9 @@ In grim depths of cold waters always seek
 /help
 ```
 
-### Croll
+![help](docs/help.png)
+
+### CRoll
 
 Call of Cthulhu 7E skill test roller with Bonus ('b' or '+') and penalty ('p', 'k' or '-') dice are being resolved automatically for easier adding circumstances of the roll, for example: test you firearms skill test of threshold 70, you've been aiming entire previous round (bonus), target is really big (bonus) but moving fast (penalty) so you can roll 70bbp.
 
@@ -24,22 +26,38 @@ Syntax: `<threshold>` `<bonus die>/<penalty die>...`
 
 Examples:
 
-`50`, `50p`, `50k`, `70bb`, `20bbppp`, `40bk`, `30+`, `20--`
+`30+`, `20--`, `50`, `50p`, `50k`, `70bb`, `20bbppp`, `40bk`
 
 ```text
-/croll 60ppb
+/croll 50
 ```
 
 ![croll](docs/croll.png)
 
-### Improve 
+### Roll
+
+Generic dice roller with multiplier and modifier (modifier is not multiplied).
+
+Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<optional modifier>`
+
+Examples:
+
+`2d4`, `3k6`, `24k6+10`, `12d8x3`, `4k12*2`, `6d6x6+6`
+
+```text
+/roll 2k6+4
+```
+
+![roll](docs/roll.png)
+
+### Improve
 
 Call of Cthulhu 7E improve skill test.
 
 Syntax: `<threshold>`
 
 ```text
-/improve 60
+/improve 40
 ```
 
 ![improve](docs/improve.png)
@@ -60,29 +78,24 @@ Syntax: `<character_name> <dexterity> <character_name> <dexterity> ...`
 
 ![initiative](docs/initiative.png)
 
-### Levels 
+### Levels
 
 Call of Cthulhu 7E success levels of threshold.
 
 Syntax: `<threshold>`
 
 ```text
-/levels 50
+/levels 60
 ```
+
 ![levels](docs/levels.png)
 
-### Roll
+### Character sheets
 
-Generic dice roller with multiplier and modifier (modifier is not multiplied).
+This bot also implements character sheets creation with simple mechanics related to basic stats like HP, Sanity and Luck.
 
-Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<optional modifier>`
+Some of commands requires the Keeper user to have a `GM` role (name hardcoded for now).
 
-Examples:
+Just play around a little.
 
-`2d4`, `3k6`, `24k6+10`, `12d8x3`, `4k12*2`, `6d6x6+6`
-
-```text
-/roll 3d6x5+1
-```
-
-![roll](docs/roll.png)
+![character](docs/character.png)
