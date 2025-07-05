@@ -1,12 +1,9 @@
-use anyhow::Context as _;
 use poise::{
     serenity_prelude::{ClientBuilder, GatewayIntents},
     CreateReply,
 };
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use shuttle_runtime::SecretStore;
-use shuttle_serenity::ShuttleSerenity;
 use std::{collections::HashMap, fmt::Display};
 use tokio::{fs, sync::RwLock};
 mod roll;
@@ -1168,11 +1165,10 @@ async fn db(
     Ok(())
 }
 
-#[shuttle_runtime::main]
-async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleSerenity {
-    let discord_token = secret_store
-        .get("DISCORD_TOKEN")
-        .context("'DISCORD_TOKEN' was not found")?;
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    dotenvy::dotenv()?;
+    let discord_token = std::env::var("DISCORD_TOKEN")?;
 
     let data = Data::load_from_file("db.json").await;
 
@@ -1216,12 +1212,11 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
         })
         .build();
 
-    let client = ClientBuilder::new(discord_token, GatewayIntents::non_privileged())
+    let mut client = ClientBuilder::new(discord_token, GatewayIntents::non_privileged())
         .framework(framework)
-        .await
-        .map_err(shuttle_runtime::CustomError::new)?;
+        .await?;
 
-    Ok(client.into())
+    Ok(client.start().await?)
 }
 
 async fn handle_error(error: FrameworkError<'_>) {

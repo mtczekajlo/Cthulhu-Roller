@@ -1,5 +1,5 @@
 .shuttle-storage
 .shuttle*
 /target
+.env
 db.json
-Secrets*.toml

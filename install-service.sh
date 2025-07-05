@@ -1,0 +1,31 @@
+#!/bin/bash
+set -xEeuo pipefail
+
+BOT_DIR="$(realpath "$(dirname "$0")")"
+BOT_BINARY="${BOT_DIR}/target/release/cthulhu-roller"
+
+cargo build --release
+
+# Create systemd service file dynamically
+SERVICE_NAME="cthulhu-roller.service"s
+SERVICE_PATH="${HOME}/.config/systemd/user/${SERVICE_NAME}"
+
+mkdir -p "$(dirname "${SERVICE_PATH}")"
+
+cat >"${SERVICE_PATH}" <<EOF
+[Unit]
+Description=Cthulhu Roller
+After=network.target
+
+[Service]
+ExecStart=${BOT_BINARY}
+WorkingDirectory=${BOT_DIR}
+Restart=always
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable "${SERVICE_NAME}"
+systemctl --user start "${SERVICE_NAME}"

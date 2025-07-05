@@ -6,7 +6,11 @@
 
 [Discord OAuth2](https://discord.com/developers/docs/topics/oauth2)
 
-[Shuttle Quick Start](https://docs.shuttle.rs/getting-started/quick-start)
+and
+
+```bash
+cp .env.example .env && vim .env
+```
 
 ## Usage
 
