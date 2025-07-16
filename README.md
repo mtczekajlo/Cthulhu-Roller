@@ -77,7 +77,7 @@ Bonus and penalty dice are being resolved automatically for easier adding circum
 Syntax: `<character_name> <dexterity> <character_name> <dexterity> ...`
 
 ```text
-/initiative Anna 50 Brian 60 Celine 60 Douglas 70 Emma 50 Frank 50 George 50
+/initiative Anna 50+ Brian 60 Celine 60 Douglas 70 Emma 50 Frank 50 George 50
 ```
 
 ![initiative](docs/initiative.png)
@@ -96,10 +96,16 @@ Syntax: `<threshold>`
 
 ### Character sheets
 
-This bot also implements character sheets creation with simple mechanics related to basic stats like HP, Sanity and Luck.
+```bash
+cargo build --features character-sheet
+```
 
-Some of commands requires the Keeper user to have a `GM` role (name hardcoded for now).
+This bot also implements character sheets creation with mechanics related to skills, stats, weapons, etc.
+
+Some of commands requires the Keeper user to have a special Discord role (`GM` by default, editable in `db.json`).
 
 Just play around a little.
 
 ![character](docs/character.png)
+
+![help2](docs/help2.png)

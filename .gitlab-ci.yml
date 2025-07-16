@@ -8,4 +8,5 @@ check-and-build:
   stage: check-and-build
   script:
     - ci/check
+    - ci/test
     - ci/build

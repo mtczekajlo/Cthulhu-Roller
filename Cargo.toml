@@ -4,14 +4,24 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
+[features]
+default = ["character-sheet"]
+character-sheet = []
+
 [dependencies]
 dotenvy = "0.15.7"
+itertools = "0.14.0"
+lazy_static = "1.5.0"
 poise = "0.6.1"
 rand = "0.9.0"
 regex = "1.11.1"
+reqwest = "0.12.22"
 serde = { version = "1.0.219", features = ["derive", "serde_derive"] }
 serde_json = "1.0.140"
-# shuttle-serenity = "0.53.0"
 tabled = "0.20.0"
 tokio = { version = "1.44.2", features = ["rt-multi-thread"] }
 tracing = "0.1.41"
+
+[dev-dependencies]
+mockall = "0.13.1"
+rstest = "0.25.0"
