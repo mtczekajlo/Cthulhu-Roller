@@ -3,8 +3,6 @@ set -Eeuo pipefail
 
 cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
 
-scripts/format
-scripts/check
-scripts/clippy
-scripts/cargo-sort
-scripts/udeps
+echo "Test $* START"
+cargo test "$@"
+echo "Test $* OK"

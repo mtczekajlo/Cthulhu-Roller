@@ -1,5 +1,3 @@
-.shuttle-storage
-.shuttle*
 /target
 .env
-db.json
+db*.json
