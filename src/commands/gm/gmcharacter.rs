@@ -1,7 +1,8 @@
-use super::is_user_gm;
-use crate::autocomplete::*;
-use crate::message::Message;
-use crate::types::*;
+use crate::{
+    commands::{autocomplete::*, gm::is_user_gm},
+    message::Message,
+    types::*,
+};
 use poise::CreateReply;
 
 #[poise::command(

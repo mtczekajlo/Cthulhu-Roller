@@ -1,9 +1,10 @@
-use crate::bot_data::*;
-use crate::locale::*;
-use crate::message::Message;
-use crate::message::{format_dice, format_improve, format_initiative, format_levels, format_skill};
-use crate::roll::{improve_skill, roll_impl, roll_skill, CharacterInitiative, InitiativeResult, RealRng, SkillResult};
-use crate::types::*;
+use crate::{
+    bot_data::*,
+    locale::*,
+    message::{Message, format_dice, format_improve, format_initiative, format_levels, format_skill},
+    roller::{CharacterInitiative, InitiativeResult, RealRng, SkillResult, improve_skill, roll_impl, roll_skill},
+    types::*,
+};
 use poise::CreateReply;
 use regex::Regex;
 
@@ -112,8 +113,8 @@ pub async fn improve(ctx: Context<'_>, #[name_localized("pl", "próg")] threshol
     Ok(())
 }
 
-#[poise::command(slash_command, track_edits)]
-pub async fn roll(ctx: Context<'_>, #[name_localized("pl", "kości")] dice: String) -> Result<(), Error> {
+#[poise::command(slash_command, track_edits, rename = "roll")]
+pub async fn roll_cmd(ctx: Context<'_>, #[name_localized("pl", "kości")] dice: String) -> Result<(), Error> {
     let user_id = ctx.author().id.get();
     let data = ctx.data().data.read().await;
     let user_data = data.users.get(&user_id);

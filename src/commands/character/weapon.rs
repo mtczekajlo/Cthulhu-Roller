@@ -1,10 +1,12 @@
-use crate::autocomplete::*;
-use crate::character::Weapon;
-use crate::locale::locale_text_lang;
-use crate::message::{format_weapons, Message};
-use crate::roll::{get_roll_max, merge_dice_results, roll_impl, RealRng};
-use crate::types::*;
-use itertools::{fold, Itertools};
+use crate::{
+    character::Weapon,
+    commands::autocomplete::*,
+    locale::locale_text_lang,
+    message::{Message, format_weapons},
+    roller::{RealRng, get_roll_max, merge_dice_results, roll_impl},
+    types::*,
+};
+use itertools::{Itertools, fold};
 use poise::CreateReply;
 
 #[poise::command(prefix_command, slash_command, subcommands("list", "add", "delete", "damage"))]

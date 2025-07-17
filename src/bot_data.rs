@@ -1,7 +1,6 @@
 #[cfg(feature = "character-sheet")]
 use crate::character::Character;
-use crate::locale::*;
-use crate::types::*;
+use crate::{locale::*, types::*};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display};
 use tokio::{fs, sync::RwLock};

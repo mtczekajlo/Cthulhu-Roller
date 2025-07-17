@@ -1,6 +1,6 @@
-use crate::autocomplete::*;
 use crate::{
-    message::{format_items, Message},
+    commands::autocomplete::*,
+    message::{Message, format_items},
     types::*,
 };
 use poise::CreateReply;

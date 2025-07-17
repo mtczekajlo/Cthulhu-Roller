@@ -1,8 +1,5 @@
-#[cfg(feature = "character-sheet")]
-use crate::types::AttributeMap;
-use crate::types::Context;
+use crate::types::{AttributeMap, Context};
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_my_character<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let data = ctx.data().data.read().await.clone();
     let user_id = ctx.author().id;
@@ -20,7 +17,6 @@ pub async fn autocomplete_my_character<'a>(ctx: Context<'a>, partial: &'a str) -
     characters
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_my_skills<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let user_id = ctx.author().id.get();
     let data = ctx.data().data.read().await;
@@ -53,7 +49,6 @@ pub async fn autocomplete_my_skills<'a>(ctx: Context<'a>, partial: &'a str) -> V
     skills
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_my_improvable_skills<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let user_id = ctx.author().id.get();
     let data = ctx.data().data.read().await;
@@ -87,7 +82,6 @@ pub async fn autocomplete_my_improvable_skills<'a>(ctx: Context<'a>, partial: &'
     skills
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_my_fight_skills<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let user_id = ctx.author().id.get();
     let data = ctx.data().data.read().await;
@@ -130,7 +124,6 @@ pub async fn autocomplete_my_fight_skills<'a>(ctx: Context<'a>, partial: &'a str
     skills
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_my_attributes<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let user_id = ctx.author().id.get();
     let data = ctx.data().data.read().await;
@@ -160,7 +153,6 @@ pub async fn autocomplete_my_attributes<'a>(ctx: Context<'a>, partial: &'a str) 
     attributes
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_my_equipment<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let user_id = ctx.author().id.get();
     let data = ctx.data().data.read().await;
@@ -193,7 +185,6 @@ pub async fn autocomplete_my_equipment<'a>(ctx: Context<'a>, partial: &'a str) -
     weapons
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_my_weapons<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let user_id = ctx.author().id.get();
     let data = ctx.data().data.read().await;
@@ -227,7 +218,6 @@ pub async fn autocomplete_my_weapons<'a>(ctx: Context<'a>, partial: &'a str) -> 
     weapons
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_any_character<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let data = ctx.data().data.read().await.clone();
     let mut characters: Vec<_> = data
@@ -242,7 +232,6 @@ pub async fn autocomplete_any_character<'a>(ctx: Context<'a>, partial: &'a str) 
     characters
 }
 
-#[cfg(feature = "character-sheet")]
 pub async fn autocomplete_any_active_character<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
     let data = ctx.data().data.read().await.clone();
     let mut characters: Vec<_> = data
@@ -255,14 +244,4 @@ pub async fn autocomplete_any_active_character<'a>(ctx: Context<'a>, partial: &'
         .collect();
     characters.sort();
     characters
-}
-
-pub async fn autocomplete_help<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
-    ctx.framework()
-        .options()
-        .commands
-        .iter()
-        .filter(|cmd| cmd.name.to_ascii_lowercase().starts_with(&partial.to_ascii_lowercase()))
-        .map(|cmd| cmd.name.clone())
-        .collect()
 }

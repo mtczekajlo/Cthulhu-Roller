@@ -8,8 +8,8 @@ pub type AttributeMap = HashMap<String, Attribute>;
 pub type SkillMap = HashMap<String, Skill>;
 
 use crate::{
-    locale::{LocaleTag, LocaleText},
     Data, UserData,
+    locale::{LocaleTag, LocaleText},
 };
 
 pub type UserId = u64;
