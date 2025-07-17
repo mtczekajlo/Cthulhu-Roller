@@ -65,11 +65,10 @@ pub async fn help(
     let all_commands = &ctx.framework().options().commands;
 
     if let Some(command) = command {
-        if let Some(cmd) = all_commands.iter().find(|el| {
-            el.name
-                .to_ascii_lowercase()
-                .contains(command.to_ascii_lowercase().as_str())
-        }) {
+        if let Some(cmd) = all_commands
+            .iter()
+            .find(|el| el.name.to_ascii_lowercase().eq(command.to_ascii_lowercase().as_str()))
+        {
             let mut short_desc: Option<&'static str> = None;
             let mut long_desc: Option<&'static str> = None;
             if let Some(meta) = cmd.custom_data.downcast_ref::<CommandMeta>() {
@@ -87,6 +86,8 @@ pub async fn help(
                     .ephemeral(true),
             )
             .await?;
+        } else {
+            return Err(format!("No such command: `{}`", command).into());
         }
     } else {
         let commands = vec![
@@ -180,7 +181,7 @@ async fn main() -> Result<(), Error> {
         cmd_with_meta(
             language(),
             CommandCategory::Basic,
-            "Set messages language; Available: english, polski",
+            "Set messages language; Available: `english`, `polski`",
             "",
         ),
         cmd_with_meta(

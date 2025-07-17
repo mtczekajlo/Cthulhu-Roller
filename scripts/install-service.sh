@@ -1,12 +1,11 @@
 #!/bin/bash
 set -xEeuo pipefail
 
-BOT_DIR="$(realpath "$(dirname "$0")")"
+BOT_DIR="$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
 BOT_BINARY="${BOT_DIR}/target/release/cthulhu-roller"
 
 cd "${BOT_DIR}"
-git pull -r
-cargo build --release
+cargo build --release "$@"
 
 # Create systemd service file dynamically
 SERVICE_NAME="cthulhu-roller.service"
