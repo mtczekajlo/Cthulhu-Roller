@@ -1,10 +1,8 @@
 use crate::{
-    locale::{LocaleLang, DEFAULT_CONST_SKILLS, DEFAULT_SKILLS},
-    types::{AttributeMap, SkillMap},
     Error,
+    locale::{DEFAULT_CONST_SKILLS, DEFAULT_SKILLS, LocaleLang, LocaleTag, LocaleText, locale_text},
+    types::{AttributeMap, SkillMap},
 };
-
-use crate::locale::{locale_text, LocaleTag, LocaleText};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]

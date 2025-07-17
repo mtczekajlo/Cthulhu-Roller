@@ -1,20 +1,22 @@
-use crate::autocomplete::*;
-use crate::bot_data::*;
-use crate::character::Character;
-use crate::commands::basic::croll_impl;
-use crate::commands::character::skill::skill_impl;
-use crate::locale::*;
-use crate::message::format_skill;
-use crate::message::format_skill_add_desc;
-use crate::message::{format_sheet, format_skill_no_luck, Message};
-use crate::roll::roll_skill;
-use crate::roll::SuccessLevel;
-use crate::types::*;
+use crate::{
+    bot_data::*,
+    character::Character,
+    commands::{autocomplete::*, basic::croll_impl, character::skill::skill_impl},
+    locale::*,
+    message::{Message, format_sheet, format_skill, format_skill_add_desc, format_skill_no_luck},
+    roller::{SuccessLevel, roll_skill},
+    types::*,
+};
 use poise::CreateReply;
+
 pub mod character_cmd;
-pub mod item_mod;
+pub use character_cmd::*;
+pub mod item;
+pub use item::*;
 pub mod skill;
+pub use skill::*;
 pub mod weapon;
+pub use weapon::*;
 
 #[poise::command(slash_command)]
 pub async fn status(ctx: Context<'_>) -> Result<(), Error> {

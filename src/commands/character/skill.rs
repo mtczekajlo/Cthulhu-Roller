@@ -1,12 +1,10 @@
-use crate::autocomplete::*;
-use crate::character::Character;
-use crate::locale::*;
-use crate::message::{format_improve, format_skill};
-use crate::roll::{improve_skill, roll_impl, roll_skill, RealRng, SkillResult};
-use crate::types::*;
 use crate::{
-    message::Message,
-    roll::{ModifierDiceType, SuccessLevel},
+    character::Character,
+    commands::autocomplete::*,
+    locale::*,
+    message::{Message, format_improve, format_skill},
+    roller::{ModifierDiceType, RealRng, SkillResult, SuccessLevel, improve_skill, roll::roll_impl, roll_skill},
+    types::*,
 };
 use poise::CreateReply;
 use regex::Regex;

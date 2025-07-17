@@ -1,7 +1,9 @@
-use crate::autocomplete::*;
-use crate::character::Character;
-use crate::types::*;
-use crate::{character::Attributes, message::Message};
+use crate::{
+    character::{Attributes, Character},
+    commands::autocomplete::*,
+    message::Message,
+    types::*,
+};
 use poise::CreateReply;
 
 #[poise::command(

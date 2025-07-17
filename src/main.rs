@@ -1,46 +1,19 @@
 use poise::{
-    serenity_prelude::{ClientBuilder, GatewayIntents},
     CreateReply,
+    serenity_prelude::{ClientBuilder, GatewayIntents},
 };
-mod roll;
-
+mod bot_data;
 #[cfg(feature = "character-sheet")]
 mod character;
-mod message;
-
-mod locale;
-
-mod autocomplete;
-use autocomplete::*;
-
-mod types;
-use types::*;
-
-mod help_messages;
-use help_messages::*;
-
 mod commands;
-use commands::basic::*;
-
-#[cfg(feature = "character-sheet")]
-use commands::character::character_cmd::*;
-#[cfg(feature = "character-sheet")]
-use commands::character::skill::*;
-#[cfg(feature = "character-sheet")]
-use commands::character::*;
-#[cfg(feature = "character-sheet")]
-use commands::gm::gmcharacter::*;
-#[cfg(feature = "character-sheet")]
-use commands::gm::*;
-
-mod bot_data;
+mod locale;
+mod message;
+mod roller;
+mod types;
 use bot_data::*;
-
-#[cfg(feature = "character-sheet")]
-use crate::commands::character::{
-    item_mod::item,
-    weapon::{damage, weapon},
-};
+use commands::*;
+use message::*;
+use types::*;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum CommandCategory {
@@ -197,7 +170,7 @@ async fn main() -> Result<(), Error> {
             "",
         ),
         cmd_with_meta(
-            roll(),
+            roll_cmd(),
             CommandCategory::Basic,
             "Simple dice roll with optional multiplier and/or modifier",
             ROLL_HELP,

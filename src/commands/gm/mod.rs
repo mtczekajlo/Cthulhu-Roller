@@ -1,15 +1,19 @@
-use crate::autocomplete::*;
-use crate::bot_data::*;
-use crate::character::Character;
-use crate::commands::character::hp_impl;
-use crate::commands::character::sanity_impl;
-use crate::locale::*;
-use crate::message::{format_sheet, Message};
-use crate::types::*;
+use crate::{
+    character::Character,
+    commands::{
+        autocomplete::*,
+        character::{hp_impl, sanity_impl},
+    },
+    locale::*,
+    message::{Message, format_gmstatus, format_sheet},
+    types::*,
+};
 use poise::CreateReply;
+
+pub mod db;
+pub use db::*;
 pub mod gmcharacter;
-use crate::message::format_gmstatus;
-use poise::serenity_prelude::{Attachment, CreateAttachment};
+pub use gmcharacter::*;
 
 pub async fn is_user_gm(ctx: Context<'_>) -> Result<bool, Error> {
     if let Some(guild_id) = ctx.guild_id() {
@@ -319,89 +323,5 @@ pub async fn gmsanity(
     }
 
     ctx.data().save().await?;
-    Ok(())
-}
-
-#[poise::command(slash_command, check = "is_user_gm")]
-pub async fn quicksave(ctx: Context<'_>) -> Result<(), Error> {
-    {
-        ctx.data().quicksave().await?;
-    }
-    ctx.send(
-        CreateReply::default()
-            .embed(
-                Message {
-                    description: "DB quicksave".to_string(),
-                    ..Default::default()
-                }
-                .to_embed(),
-            )
-            .ephemeral(true),
-    )
-    .await?;
-    Ok(())
-}
-
-#[poise::command(slash_command, check = "is_user_gm")]
-pub async fn quickload(ctx: Context<'_>) -> Result<(), Error> {
-    {
-        ctx.data().quickload().await?;
-    }
-    ctx.send(
-        CreateReply::default()
-            .embed(
-                Message {
-                    description: "DB quickload".to_string(),
-                    ..Default::default()
-                }
-                .to_embed(),
-            )
-            .ephemeral(true),
-    )
-    .await?;
-    Ok(())
-}
-
-#[poise::command(prefix_command, slash_command, check = "is_user_gm")]
-pub async fn db(
-    ctx: poise::Context<'_, Data, Error>,
-    #[name_localized("pl", "plik")] file: Option<Attachment>,
-) -> Result<(), Error> {
-    if let Some(file) = file {
-        let response = reqwest::get(&file.url).await?;
-        let content = response.text().await?;
-        let db_parsed = serde_json::from_str::<InnerData>(&content)?;
-
-        {
-            let mut inner_data;
-            inner_data = ctx.data().data.write().await;
-            inner_data.clone_from(&db_parsed);
-        }
-
-        ctx.data().save().await?;
-
-        ctx.send(
-            CreateReply::default()
-                .embed(
-                    Message {
-                        description: "DB saved.".to_string(),
-                        ..Default::default()
-                    }
-                    .to_embed(),
-                )
-                .ephemeral(true),
-        )
-        .await?;
-    } else {
-        let file_attachment = CreateAttachment::path(ctx.data().get_db_path()).await?;
-        ctx.send(
-            CreateReply::default()
-                .content("📦 Here’s your current database backup:")
-                .attachment(file_attachment)
-                .ephemeral(true),
-        )
-        .await?;
-    }
-
     Ok(())
 }
