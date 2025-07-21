@@ -1,6 +1,8 @@
 # Cthulhu Roller
 
-**Cthulhu Roller** is a Call of Cthulhu RPG 7E dice roller bot for Discord.
+**Cthulhu Roller** is a Call of Cthulhu RPG 7e dice roller bot for Discord.
+
+> This is an unofficial, fan-made, open-source project, not affiliated with or endorsed by [Chaosium](https://www.chaosium.com/) or [Black Monk Games](https://blackmonk.pl/). Trademarks and copyrights belong to their respective owners.
 
 ## Installation
 
