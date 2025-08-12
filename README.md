@@ -57,7 +57,7 @@ Syntax: `<optional number of dice>` `d/k` `<sides>` `<optional multiplier>` `<op
 Examples: `2d4` `3k6` `24k6+10` `12d8x3` `4k12*2` `6d6x6+6` `d4-2` `k8+k4` `1k6+1k4+1`
 
 ```text
-/roll 2k6+4
+/roll 2d6+4
 ```
 
 ![roll](docs/roll.png)
@@ -83,6 +83,10 @@ Initiative test roller with optional bonus and penalty dice.
 Initiative order is defined by: dexterity test success level, dexterity value and lowest roll value.
 
 Bonus and penalty dice are being resolved automatically for easier adding circumstances of the roll, for example: you gain bonus die for initiative roll for being prepared (armed) at the beginning of fight. (see `/croll` command)
+
+Use `/next_round`, `/previous_round` commands to manipulate the arrow pointing at the character.
+
+Command `/end_fight` clears the "battle" data.
 
 Syntax: `<character_name>` `<dexterity>` `<character_name>` `<dexterity>` (and so on)
 
@@ -116,4 +120,12 @@ Just play around a little. :)
 
 ![character](docs/character.png)
 
-![sheet](docs/sheet.png)
+![weapon](docs/weapon.png)
+
+![fight1](docs/fight1.png)
+
+![fight2](docs/fight2.png)
+
+![damage](docs/damage.png)
+
+![die](docs/die.png)
