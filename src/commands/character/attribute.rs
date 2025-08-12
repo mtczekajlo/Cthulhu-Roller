@@ -100,7 +100,7 @@ async fn check_cmd(
         );
         croll_result = croll_impl(&croll_query)?;
 
-        mc = MessageContent::from_croll_result(user_lang, &croll_result, false, false)
+        mc = MessageContent::from_croll_result(user_lang, &croll_result, false, true)
             .with_skill_name(&name)
             .with_character_name(&character_name);
 
@@ -139,14 +139,14 @@ async fn check_cmd(
                     .with_character_name(&character_name);
                 if croll_result.success_level < SuccessLevel::Success {
                     mc.description = format!(
-                        "{}\n{}: ***{}***",
+                        "{}\n\n{}: ***{}***",
                         mc.description,
                         locale_text_by_tag_lang(user_lang, LocaleTag::PushRoll),
                         locale_text_by_tag_lang(user_lang, LocaleTag::PrepareForTheConsequences)
                     );
                 } else {
                     mc.description = format!(
-                        "{}\n{}: *{}*",
+                        "{}\n\n{}: *{}*",
                         mc.description,
                         locale_text_by_tag_lang(user_lang, LocaleTag::PushRoll),
                         locale_text_by_tag_lang(user_lang, LocaleTag::YouGotLuckyThisTIme)
@@ -177,7 +177,7 @@ async fn check_cmd(
                     .with_skill_name(&name)
                     .with_character_name(&character_name);
                 mc.title = format!("{} (🍀)", mc.title);
-                mc.description = format!("{}\n🍀-{} ({})", mc.description, luck, remaining_luck);
+                mc.description = format!("{}\n\n🍀-{} ({})", mc.description, luck, remaining_luck);
                 reply
                     .edit(ctx, CreateReply::default().embed(mc.to_embed()).components(vec![]))
                     .await?;

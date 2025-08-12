@@ -100,7 +100,7 @@ impl MessageContent {
 
         if !hide_details {
             let mut description = format!(
-                "**{}** / {}\n{} {} `[{}]`\n",
+                "**{}** / {}\n{} {} `[{}]`",
                 croll_result.result(),
                 croll_result.threshold,
                 locale_text_by_tag_lang(lang, LocaleTag::Rolls),
@@ -113,7 +113,7 @@ impl MessageContent {
 
             if let Some(modifier_dice) = &croll_result.modifier_dice {
                 description = format!(
-                    "{}{} {}: {}\n",
+                    "{}\n{} {}: {}",
                     description,
                     locale_text_by_tag_lang(lang, modifier_dice.dice_type.to_locale_tag()),
                     locale_text_by_tag_lang(lang, LocaleTag::Dice),
@@ -130,7 +130,7 @@ impl MessageContent {
                     }
                     previous_delta = luck_delta;
                     description = format!(
-                        "{}🍀 {} ➡️ {}\n",
+                        "{}\n🍀 {} ➡️ {}",
                         description,
                         luck_delta,
                         locale_text_by_tag_lang(lang, success_level.to_locale_tag()),
@@ -581,7 +581,7 @@ impl MessageContent {
                 character.status_sanity_raw(),
                 character.status_luck_raw(),
                 character.status_magic_raw(),
-                character.attributes.dexterity.value.to_string(),
+                character.attributes.dexterity().to_string(),
             ]);
         }
         let table = table.build().with(Style::empty()).to_string();
@@ -640,26 +640,26 @@ impl MessageContent {
 
         table.push_record([
             locale_text_by_tag_lang(lang, LocaleTag::Str),
-            character.attributes.strength.value.to_string(),
+            character.attributes.strength().to_string(),
             locale_text_by_tag_lang(lang, LocaleTag::Dex),
-            character.attributes.dexterity.value.to_string(),
+            character.attributes.dexterity().to_string(),
             locale_text_by_tag_lang(lang, LocaleTag::Pow),
-            character.attributes.power.value.to_string(),
+            character.attributes.power().to_string(),
         ]);
 
         table.push_record([
             locale_text_by_tag_lang(lang, LocaleTag::Con),
-            character.attributes.constitution.value.to_string(),
+            character.attributes.constitution().to_string(),
             locale_text_by_tag_lang(lang, LocaleTag::App),
-            character.attributes.appearance.value.to_string(),
+            character.attributes.appearance().to_string(),
             locale_text_by_tag_lang(lang, LocaleTag::Edu),
-            character.attributes.education.value.to_string(),
+            character.attributes.education().to_string(),
         ]);
         table.push_record([
             locale_text_by_tag_lang(lang, LocaleTag::Siz),
-            character.attributes.size.value.to_string(),
+            character.attributes.size().to_string(),
             locale_text_by_tag_lang(lang, LocaleTag::Int),
-            character.attributes.intelligence.value.to_string(),
+            character.attributes.intelligence().to_string(),
             locale_text_by_tag_lang(lang, LocaleTag::Move),
             character.move_rate.to_string(),
         ]);

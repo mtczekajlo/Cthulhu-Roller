@@ -1,5 +1,11 @@
 use crate::{
-    bot_data::*, character::Character, commands::basic::croll_impl, locale::*, message::MessageContent, types::*,
+    bot_data::*,
+    character::Character,
+    commands::basic::croll_impl,
+    locale::*,
+    message::MessageContent,
+    roller::{dice_rng::RealRng, roll::roll_impl, success_level::SuccessLevel},
+    types::*,
 };
 use poise::CreateReply;
 
@@ -190,18 +196,45 @@ pub async fn luck_cmd(
                 modifier_dice.unwrap_or_default()
             );
             let luck_result = croll_impl(&luck_query)?;
+
             mc = MessageContent::from_croll_result(user_data.lang, &luck_result, false, true)
                 .with_skill_name(&luck_str)
                 .with_character_name(&character_name);
+
+            if luck_result.success_level == SuccessLevel::CriticalSuccess {
+                let mut improve_dice = "d10".to_string();
+                if user_data.lang == LocaleLang::Polski {
+                    improve_dice = improve_dice.replace('d', "k");
+                }
+
+                let res;
+                {
+                    let mut rng = RealRng::new();
+                    res = roll_impl(&mut rng, &improve_dice)?;
+                }
+                mc.description = format!(
+                    "{}\n\n**{}**",
+                    mc.description,
+                    locale_text_by_tag_lang(user_data.lang, LocaleTag::LuckCritical)
+                );
+                let power = character.attributes.power();
+                let new_power = power + res.result();
+                mc.description = format!(
+                    "{}\n{} + **{}** ({}) = **{}**",
+                    mc.description,
+                    character.attributes.power(),
+                    res.result(),
+                    improve_dice,
+                    new_power
+                );
+                character.set_attribute("power", new_power);
+            }
         }
     }
 
     ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
 
-    if delta.is_some() {
-        ctx.data().data.write().await.save().await?;
-    }
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(slash_command, rename = "mp", name_localized("pl", "pm"))]

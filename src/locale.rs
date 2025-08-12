@@ -198,6 +198,7 @@ pub enum LocaleTag {
     Lore,
     LosesFirstRound,
     Luck,
+    LuckCritical,
     Lucky,
     MagicPoints,
     MajorWound,
@@ -582,6 +583,11 @@ lazy_static! {
         locale_entry(LocaleTag::Items, "Items", "Przedmioty"),
         locale_entry(LocaleTag::KnockOut, "Knock Out!", "Nokaut!"),
         locale_entry(LocaleTag::LosesFirstRound, "loses first round", "traci pierwszą turę"),
+        locale_entry(
+            LocaleTag::LuckCritical,
+            "Critical success on Luck roll means immediate Power improvement!",
+            "Krytyczny sukces w teście Szczęścia oznacza natychmiastowy rozwój Mocy!"
+        ),
         locale_entry(LocaleTag::MajorWound, "Major wound!", "Ciężka rana!"),
         locale_entry(
             LocaleTag::MajorWoundHealed,
