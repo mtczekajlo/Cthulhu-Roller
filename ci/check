@@ -5,6 +5,8 @@ cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
 
 scripts/format
 scripts/check
+scripts/check --no-default-features
 scripts/clippy
+scripts/clippy --no-default-features
 scripts/cargo-sort
 scripts/udeps

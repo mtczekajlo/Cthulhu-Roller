@@ -1,36 +1,30 @@
-use poise::{
-    CreateReply,
-    serenity_prelude::{ClientBuilder, GatewayIntents},
-};
 mod bot_data;
 #[cfg(feature = "character-sheet")]
 mod character;
+mod command_list;
 mod commands;
 mod locale;
 mod message;
 mod roller;
 mod types;
-use bot_data::*;
-use commands::*;
-use message::*;
-use types::*;
+mod utils;
 
-#[derive(Clone, Debug, Default, PartialEq)]
-pub enum CommandCategory {
-    #[default]
-    Basic,
-    Character,
-    GM,
-}
+use crate::command_list::{CommandCategory, CommandMeta};
+#[cfg(feature = "character-sheet")]
+use crate::commands::gm::is_user_gm;
+use bot_data::{ContextData, Data};
+use command_list::command_list;
+use commands::autocomplete::autocomplete_help;
+use poise::serenity_prelude::{Http, HttpBuilder};
+use poise::{
+    CreateReply,
+    serenity_prelude::{ClientBuilder, GatewayIntents},
+};
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use types::{Context, Error, FrameworkError};
 
-#[derive(Clone, Default)]
-pub struct CommandMeta {
-    pub category: CommandCategory,
-    pub short_desc: &'static str,
-    pub long_desc: &'static str,
-}
-
-#[poise::command(slash_command, track_edits)]
+#[poise::command(slash_command, name_localized("pl", "pomoc"), track_edits)]
 pub async fn help(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_help"] command: Option<String>,
@@ -60,7 +54,7 @@ pub async fn help(
             )
             .await?;
         } else {
-            return Err(format!("No such command: `{}`", command).into());
+            return Err(format!("No such command: `{command}`").into());
         }
     } else {
         let commands = vec![
@@ -88,7 +82,7 @@ pub async fn help(
     Ok(())
 }
 
-fn format_help(commands: &[poise::Command<Data, Error>], category: CommandCategory) -> String {
+fn format_help(commands: &[poise::Command<ContextData, Error>], category: CommandCategory) -> String {
     let mut out = format!("**{category:?} Commands**\n");
 
     let mut table = tabled::builder::Builder::new();
@@ -123,193 +117,14 @@ fn format_help(commands: &[poise::Command<Data, Error>], category: CommandCatego
     out
 }
 
-fn cmd_with_meta(
-    mut cmd: poise::Command<Data, Error>,
-    category: CommandCategory,
-    short_desc: &'static str,
-    long_desc: &'static str,
-) -> poise::Command<Data, Error> {
-    cmd.custom_data = Box::new(CommandMeta {
-        category,
-        short_desc,
-        long_desc,
-    });
-    cmd
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     dotenvy::dotenv()?;
     let discord_token = std::env::var("DISCORD_TOKEN")?;
 
-    let data = Data::load_from_file().await;
+    let data = Data::load().await;
 
-    let commands_vec = vec![
-        cmd_with_meta(
-            help(),
-            CommandCategory::Basic,
-            "Show help; Use `/help <command>` to get more help",
-            "",
-        ),
-        cmd_with_meta(
-            language(),
-            CommandCategory::Basic,
-            "Set messages language; Available: `english`, `polski`",
-            "",
-        ),
-        cmd_with_meta(
-            croll(),
-            CommandCategory::Basic,
-            "Skill test with optional bonus and penalty dice",
-            CROLL_HELP,
-        ),
-        cmd_with_meta(
-            hcroll(),
-            CommandCategory::Basic,
-            "Same as `/croll` but with private output",
-            "",
-        ),
-        cmd_with_meta(
-            roll_cmd(),
-            CommandCategory::Basic,
-            "Simple dice roll with optional multiplier and/or modifier",
-            ROLL_HELP,
-        ),
-        cmd_with_meta(
-            hroll(),
-            CommandCategory::Basic,
-            "Same as `/roll` but with private output",
-            "",
-        ),
-        cmd_with_meta(
-            initiative(),
-            CommandCategory::Basic,
-            "Initiative test with optional bonus and penalty dice",
-            INITIATIVE_HELP,
-        ),
-        cmd_with_meta(improve(), CommandCategory::Basic, "Improve skill test", IMPROVE_HELP),
-        cmd_with_meta(
-            levels(),
-            CommandCategory::Basic,
-            "Success levels of provided threshold",
-            LEVELS_HELP,
-        ),
-    ];
-
-    #[cfg(feature = "character-sheet")]
-    let commands_vec = commands_vec
-        .into_iter()
-        .chain(vec![
-            cmd_with_meta(
-                character_cmd(),
-                CommandCategory::Character,
-                "Manage character entries",
-                "create, select, reset, delete",
-            ),
-            cmd_with_meta(
-                skill_cmd(),
-                CommandCategory::Character,
-                "Skill check or edit",
-                "check, mark, improve, add, set, delete",
-            ),
-            cmd_with_meta(
-                attribute(),
-                CommandCategory::Character,
-                "Attribute check or set value",
-                "",
-            ),
-            cmd_with_meta(
-                weapon(),
-                CommandCategory::Character,
-                "Character's weapons",
-                "damage, list, add, delete",
-            ),
-            cmd_with_meta(
-                item(),
-                CommandCategory::Character,
-                "Character's items",
-                "list, add, delete",
-            ),
-            cmd_with_meta(status(), CommandCategory::Character, "Character's status", ""),
-            cmd_with_meta(sheet(), CommandCategory::Character, "Character's sheet", ""),
-            cmd_with_meta(hp(), CommandCategory::Character, "Shows/modifies HP", ""),
-            cmd_with_meta(
-                sanity(),
-                CommandCategory::Character,
-                "Roll Sanity check or modify Sanity points",
-                "",
-            ),
-            cmd_with_meta(
-                luck(),
-                CommandCategory::Character,
-                "Roll Luck check or modify Luck points",
-                "",
-            ),
-            cmd_with_meta(dodge(), CommandCategory::Character, "Roll Dodge check", ""),
-            cmd_with_meta(
-                fight(),
-                CommandCategory::Character,
-                "Roll combat Fighting/Firearms check",
-                "",
-            ),
-            cmd_with_meta(
-                damage(),
-                CommandCategory::Character,
-                "Roll damage for equipped weapon",
-                "",
-            ),
-            cmd_with_meta(magic(), CommandCategory::Character, "Shows/modifies Magic points", ""),
-            cmd_with_meta(
-                sleep(),
-                CommandCategory::Character,
-                "Updated initial Sanity level (for tracking daily Sanity loss)",
-                "",
-            ),
-            cmd_with_meta(gmstatus(), CommandCategory::GM, "Show all active characters status", ""),
-            cmd_with_meta(
-                gmsheet(),
-                CommandCategory::GM,
-                "Show one of active characters sheet",
-                "",
-            ),
-            cmd_with_meta(
-                gmcharacter_cmd(),
-                CommandCategory::GM,
-                "GM API for players characters",
-                "",
-            ),
-            cmd_with_meta(gmhp(), CommandCategory::GM, "Modify one of active characters HP", ""),
-            cmd_with_meta(
-                gmsanity(),
-                CommandCategory::GM,
-                "Modify one of active characters Sanity",
-                "",
-            ),
-            cmd_with_meta(kill(), CommandCategory::GM, "Kill one of active characters", ""),
-            cmd_with_meta(revive(), CommandCategory::GM, "Revive one of active characters", ""),
-            cmd_with_meta(
-                heal(),
-                CommandCategory::GM,
-                "Heal (remove Major Wound) one of active characters",
-                "",
-            ),
-            cmd_with_meta(
-                insane(),
-                CommandCategory::GM,
-                "Make insane (add Fragile Mind) one of active characters",
-                "",
-            ),
-            cmd_with_meta(
-                sane(),
-                CommandCategory::GM,
-                "Make sane (remove Fragile Mind) one of active characters",
-                "",
-            ),
-            cmd_with_meta(db(), CommandCategory::GM, "Download/Upload database", ""),
-            cmd_with_meta(quicksave(), CommandCategory::GM, "Create quick backup of database", ""),
-            cmd_with_meta(quickload(), CommandCategory::GM, "Load quick backup of database", ""),
-        ])
-        .collect();
+    let commands_vec = command_list();
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
@@ -320,12 +135,21 @@ async fn main() -> Result<(), Error> {
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(data)
+                Ok(ContextData {
+                    data: Arc::new(RwLock::new(data)),
+                })
             })
         })
         .build();
 
-    let mut client = ClientBuilder::new(discord_token, GatewayIntents::non_privileged())
+    let http = if let Ok(proxy) = std::env::var("HTTP_PROXY") {
+        println!("Using proxy: {proxy}");
+        HttpBuilder::new(&discord_token).proxy(&proxy).build()
+    } else {
+        Http::new(&discord_token)
+    };
+
+    let mut client = ClientBuilder::new_with_http(http, GatewayIntents::non_privileged())
         .framework(framework)
         .await?;
 
@@ -335,6 +159,7 @@ async fn main() -> Result<(), Error> {
 async fn handle_error(error: FrameworkError<'_>) {
     match error {
         poise::FrameworkError::Command { ctx, error, .. } => {
+            eprintln!("{error}");
             let help_message = ctx.command().help_text.clone().unwrap_or_default();
             let _ = ctx
                 .send(
@@ -345,6 +170,7 @@ async fn handle_error(error: FrameworkError<'_>) {
                 .await;
         }
         poise::FrameworkError::CommandCheckFailed { ctx, .. } => {
+            eprintln!("{error}");
             let _ = ctx
                 .send(
                     poise::CreateReply::default()
@@ -353,6 +179,6 @@ async fn handle_error(error: FrameworkError<'_>) {
                 )
                 .await;
         }
-        _ => (),
+        error => eprintln!("{error}"),
     }
 }
