@@ -78,7 +78,13 @@ pub async fn fight_cmd(
         }
 
         {
-            let skill = character.get_skill(&weapon_skill_str).ok_or("No such skill")?;
+            let skill = character.get_mut_skill(&weapon_skill_str).ok_or_else(|| {
+                format!(
+                    "{}: {}",
+                    locale_text_by_tag_lang(user_data.lang, LocaleTag::NoSuchSkill),
+                    weapon_skill_str
+                )
+            })?;
             skill_improvable = skill.improvable;
             skill_already_marked = skill.to_improve;
         }
@@ -94,7 +100,13 @@ pub async fn fight_cmd(
                 attack.get_modifier(attack_number)
             };
 
-            let skill = character.get_skill(&weapon_skill_str).ok_or("No such skill")?;
+            let skill = character.get_mut_skill(&weapon_skill_str).ok_or_else(|| {
+                format!(
+                    "{}: {}",
+                    locale_text_by_tag_lang(user_data.lang, LocaleTag::NoSuchSkill),
+                    weapon_skill_str
+                )
+            })?;
             let croll_query = format!("{}{}", skill.value, modifier_dice);
             let mut croll_result = croll_impl(&croll_query)?;
 
@@ -139,7 +151,7 @@ pub async fn fight_cmd(
                 }
             }
 
-            let mut mc = MessageContent::from_croll_result(user_lang, &croll_result, false, false)
+            let mut mc = MessageContent::from_croll_result(user_lang, &croll_result, false, true)
                 .with_skill_name(&weapon_skill_str)
                 .with_character_name(&character_name);
 
@@ -248,7 +260,7 @@ pub async fn fight_cmd(
                                     .with_skill_name(&weapon_skill_str)
                                     .with_character_name(&character_name);
                                 mc.title = format!("{} (🍀)", mc.title);
-                                mc.description = format!("{}\n🍀-{} ({})", mc.description, luck, remaining_luck);
+                                mc.description = format!("{}\n\n🍀-{} ({})", mc.description, luck, remaining_luck);
                                 reply
                                     .edit(ctx, CreateReply::default().embed(mc.to_embed()).components(vec![]))
                                     .await
@@ -275,7 +287,13 @@ pub async fn fight_cmd(
             locale_text_by_tag_lang(user_data.lang, LocaleTag::CharacterNotFound),
             &character_name
         ))?;
-        let skill = character.get_mut_skill(&weapon_skill_str).ok_or("No such skill")?;
+        let skill = character.get_mut_skill(&weapon_skill_str).ok_or_else(|| {
+            format!(
+                "{}: {}",
+                locale_text_by_tag_lang(user_data.lang, LocaleTag::NoSuchSkill),
+                weapon_skill_str
+            )
+        })?;
         skill.to_improve |= mark_to_improve;
     }
 

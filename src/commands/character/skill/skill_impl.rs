@@ -35,7 +35,13 @@ pub async fn skill_impl_str(ctx: Context<'_>, skill_name: &str, modifier_dice: &
             locale_text_by_tag_lang(user_data.lang, LocaleTag::CharacterNotFound),
             &character_name
         ))?;
-        let skill = character.get_mut_skill(skill_name).ok_or("No such skill")?;
+        let skill = character.get_mut_skill(skill_name).ok_or_else(|| {
+            format!(
+                "{}: {}",
+                locale_text_by_tag_lang(user_data.lang, LocaleTag::NoSuchSkill),
+                skill_name
+            )
+        })?;
         skill_improvable = skill.improvable;
         skill_already_marked = skill.to_improve;
         croll_query = format!("{}{}", skill.value, modifier_dice.unwrap_or_default());
@@ -61,7 +67,7 @@ pub async fn skill_impl_str(ctx: Context<'_>, skill_name: &str, modifier_dice: &
         }
     }
 
-    mc = MessageContent::from_croll_result(user_lang, &croll_result, false, false)
+    mc = MessageContent::from_croll_result(user_lang, &croll_result, false, true)
         .with_skill_name(skill_name)
         .with_character_name(&character_name);
 
@@ -121,14 +127,14 @@ pub async fn skill_impl_str(ctx: Context<'_>, skill_name: &str, modifier_dice: &
                 }
                 if croll_result.success_level < SuccessLevel::Success {
                     mc.description = format!(
-                        "{}\n{}: ***{}***",
+                        "{}\n\n{}: ***{}***",
                         mc.description,
                         locale_text_by_tag_lang(user_lang, LocaleTag::PushRoll),
                         locale_text_by_tag_lang(user_lang, LocaleTag::PrepareForTheConsequences)
                     );
                 } else {
                     mc.description = format!(
-                        "{}\n{}: *{}*",
+                        "{}\n\n{}: *{}*",
                         mc.description,
                         locale_text_by_tag_lang(user_lang, LocaleTag::PushRoll),
                         locale_text_by_tag_lang(user_lang, LocaleTag::YouGotLuckyThisTIme)
@@ -168,7 +174,7 @@ pub async fn skill_impl_str(ctx: Context<'_>, skill_name: &str, modifier_dice: &
                     .with_skill_name(skill_name)
                     .with_character_name(&character_name);
                 mc.title = format!("{} (🍀)", mc.title);
-                mc.description = format!("{}\n🍀-{} ({})", mc.description, luck, remaining_luck);
+                mc.description = format!("{}\n\n🍀-{} ({})", mc.description, luck, remaining_luck);
                 reply
                     .edit(ctx, CreateReply::default().embed(mc.to_embed()).components(vec![]))
                     .await?;
@@ -185,7 +191,14 @@ pub async fn skill_impl_str(ctx: Context<'_>, skill_name: &str, modifier_dice: &
             locale_text_by_tag_lang(user_data.lang, LocaleTag::CharacterNotFound),
             &character_name
         ))?;
-        let skill = character.get_mut_skill(skill_name).ok_or("No such skill")?;
+
+        let skill = character.get_mut_skill(skill_name).ok_or_else(|| {
+            format!(
+                "{}: {}",
+                locale_text_by_tag_lang(user_data.lang, LocaleTag::NoSuchSkill),
+                skill_name
+            )
+        })?;
         skill.to_improve |= mark_to_improve;
     }
 

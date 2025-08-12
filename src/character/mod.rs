@@ -59,8 +59,8 @@ pub fn default_skills(attributes: &Attributes) -> Result<SkillMap, Error> {
     let mut skill_map = SkillMap::new();
     for (locale_tag, value) in DEFAULT_SKILLS.iter() {
         let (k, v) = match locale_tag {
-            LocaleTag::LanguageOwn => skill_map_wrapper(*locale_tag, attributes.education.value)?,
-            LocaleTag::Dodge => skill_map_wrapper(*locale_tag, attributes.dexterity.value / 2)?,
+            LocaleTag::LanguageOwn => skill_map_wrapper(*locale_tag, attributes.education())?,
+            LocaleTag::Dodge => skill_map_wrapper(*locale_tag, attributes.dexterity() / 2)?,
             _ => skill_map_wrapper(*locale_tag, *value)?,
         };
         skill_map.insert(k, v);
@@ -147,7 +147,7 @@ impl Character {
     ) -> Result<Self, Error> {
         Ok(Character {
             name: name.into(),
-            magic: CharacterVariable::new_clamped(attributes.power.value / 5),
+            magic: CharacterVariable::new_clamped(attributes.power() / 5),
             skills: default_skills(&attributes)?,
             move_rate: attributes.calculate_move_rate(),
             hp: CharacterVariable::new_clamped(attributes.calculate_hp(pulp_archetype.is_some())),
@@ -183,27 +183,30 @@ impl Character {
             entry.value = value;
         }
 
-        if self.attributes.strength.name.equals_ignore_case(name) {
+        if self.attributes.get("strength").unwrap().name.equals_ignore_case(name) {
             self.build = self.attributes.calculate_build();
             self.move_rate = self.attributes.calculate_move_rate();
         }
-        if self.attributes.constitution.name.equals_ignore_case(name) {
+        if self
+            .attributes
+            .get("constitution")
+            .unwrap()
+            .name
+            .equals_ignore_case(name)
+        {
             self.hp.max = self.attributes.calculate_hp(self.pulp_archetype.is_some());
         }
-        if self.attributes.size.name.equals_ignore_case(name) {
+        if self.attributes.get("size").unwrap().name.equals_ignore_case(name) {
             self.build = self.attributes.calculate_build();
             self.move_rate = self.attributes.calculate_move_rate();
             self.hp.max = self.attributes.calculate_hp(self.pulp_archetype.is_some());
         }
-        if self.attributes.dexterity.name.equals_ignore_case(name) {
+        if self.attributes.get("dexterity").unwrap().name.equals_ignore_case(name) {
             self.move_rate = self.attributes.calculate_move_rate();
         }
-        self.attributes.appearance.name.equals_ignore_case(name);
-        self.attributes.intelligence.name.equals_ignore_case(name);
-        if self.attributes.power.name.equals_ignore_case(name) {
-            self.build = self.attributes.calculate_magic();
+        if self.attributes.get("power").unwrap().name.equals_ignore_case(name) {
+            self.magic.max = self.attributes.calculate_magic();
         }
-        if self.attributes.education.name.equals_ignore_case(name) {}
     }
 
     pub fn get_skill_partial(&self, partial_skill_name: &str) -> Option<Skill> {

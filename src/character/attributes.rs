@@ -19,35 +19,14 @@ impl Attribute {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct Attributes {
-    pub strength: Attribute,
-    pub constitution: Attribute,
-    pub size: Attribute,
-    pub dexterity: Attribute,
-    pub appearance: Attribute,
-    pub intelligence: Attribute,
-    pub power: Attribute,
-    pub education: Attribute,
-}
-
-impl From<Attributes> for AttributeMap {
-    fn from(value: Attributes) -> Self {
-        let mut map = AttributeMap::new();
-        map.insert(locale_entry_by_tag(LocaleTag::Strength).clone().en, value.strength);
-        map.insert(
-            locale_entry_by_tag(LocaleTag::Constitution).clone().en,
-            value.constitution,
-        );
-        map.insert(locale_entry_by_tag(LocaleTag::Size).clone().en, value.size);
-        map.insert(locale_entry_by_tag(LocaleTag::Dexterity).clone().en, value.dexterity);
-        map.insert(locale_entry_by_tag(LocaleTag::Appearance).clone().en, value.appearance);
-        map.insert(
-            locale_entry_by_tag(LocaleTag::Intelligence).clone().en,
-            value.intelligence,
-        );
-        map.insert(locale_entry_by_tag(LocaleTag::Power).clone().en, value.power);
-        map.insert(locale_entry_by_tag(LocaleTag::Education).clone().en, value.education);
-        map
-    }
+    strength: Attribute,
+    constitution: Attribute,
+    size: Attribute,
+    dexterity: Attribute,
+    appearance: Attribute,
+    intelligence: Attribute,
+    power: Attribute,
+    education: Attribute,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -65,6 +44,38 @@ impl Attributes {
         })
     }
 
+    pub fn strength(&self) -> i32 {
+        self.strength.value
+    }
+
+    pub fn constitution(&self) -> i32 {
+        self.constitution.value
+    }
+
+    pub fn size(&self) -> i32 {
+        self.size.value
+    }
+
+    pub fn dexterity(&self) -> i32 {
+        self.dexterity.value
+    }
+
+    pub fn appearance(&self) -> i32 {
+        self.appearance.value
+    }
+
+    pub fn intelligence(&self) -> i32 {
+        self.intelligence.value
+    }
+
+    pub fn power(&self) -> i32 {
+        self.power.value
+    }
+
+    pub fn education(&self) -> i32 {
+        self.education.value
+    }
+
     pub fn get(&self, attribute_name: &str) -> Option<&Attribute> {
         [
             &self.strength,
@@ -79,6 +90,23 @@ impl Attributes {
         .iter()
         .find(|a| a.name.equals_ignore_case(attribute_name))
         .cloned()
+    }
+
+    pub fn set(&mut self, attribute_name: &str, value: i32) -> Result<(), Error> {
+        [
+            &mut self.strength,
+            &mut self.constitution,
+            &mut self.size,
+            &mut self.dexterity,
+            &mut self.appearance,
+            &mut self.intelligence,
+            &mut self.power,
+            &mut self.education,
+        ]
+        .into_iter()
+        .find(|a| a.name.equals_ignore_case(attribute_name))
+        .map(|a| a.value = value)
+        .ok_or(Error::from(format!("Attribute {} not found.", attribute_name)))
     }
 
     pub fn get_mut(&mut self, attribute_name: &str) -> Option<&mut Attribute> {
@@ -136,6 +164,27 @@ impl Attributes {
 
     pub fn calculate_magic(&self) -> i32 {
         self.power.value / 5
+    }
+}
+
+impl From<Attributes> for AttributeMap {
+    fn from(value: Attributes) -> Self {
+        let mut map = AttributeMap::new();
+        map.insert(locale_entry_by_tag(LocaleTag::Strength).clone().en, value.strength);
+        map.insert(
+            locale_entry_by_tag(LocaleTag::Constitution).clone().en,
+            value.constitution,
+        );
+        map.insert(locale_entry_by_tag(LocaleTag::Size).clone().en, value.size);
+        map.insert(locale_entry_by_tag(LocaleTag::Dexterity).clone().en, value.dexterity);
+        map.insert(locale_entry_by_tag(LocaleTag::Appearance).clone().en, value.appearance);
+        map.insert(
+            locale_entry_by_tag(LocaleTag::Intelligence).clone().en,
+            value.intelligence,
+        );
+        map.insert(locale_entry_by_tag(LocaleTag::Power).clone().en, value.power);
+        map.insert(locale_entry_by_tag(LocaleTag::Education).clone().en, value.education);
+        map
     }
 }
 
