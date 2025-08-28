@@ -1,6 +1,7 @@
 pub mod add;
 pub mod skill_impl;
 use crate::{
+    character::Skill,
     commands::{autocomplete::character::*, character::skill::skill_impl::skill_impl_str},
     locale::{LocaleLang, LocaleTag, locale_tag_by_str, locale_text_by_tag_lang},
     message::MessageContent,
@@ -163,14 +164,11 @@ async fn remove_cmd(
 #[poise::command(prefix_command, slash_command, rename = "improve", name_localized("pl", "rozwiń"))]
 async fn improve_cmd(
     ctx: Context<'_>,
-    #[autocomplete = "autocomplete_my_improvable_skills"]
-    #[name_localized("pl", "nazwa")]
-    name: String,
     #[name_localized("pl", "kość_rozwoju")] improve_dice: Option<String>,
 ) -> Result<(), Error> {
-    let mut mc;
-
+    let mut mcs = vec![];
     let mut ephemeral = false;
+
     {
         let user_id = ctx.author().id.get();
         let mut data = ctx.data().data.write().await;
@@ -185,60 +183,61 @@ async fn improve_cmd(
             &character_name
         ))?;
 
-        let skill = character.get_mut_skill(&name).ok_or_else(|| {
-            format!(
-                "{}: {}",
-                locale_text_by_tag_lang(user_data.lang, LocaleTag::NoSuchSkill),
-                name
-            )
-        })?;
+        let skills: Vec<(&String, &mut Skill)> = character
+            .skills
+            .iter_mut()
+            .filter(|s| s.1.improvable && s.1.to_improve)
+            .collect();
 
-        if skill.improvable && skill.to_improve {
-            let improve_result = improve_skill(skill.value);
-            mc = MessageContent::from_improve(user_data.lang, &improve_result);
-            skill.to_improve = false;
-
-            let mut improve_dice = improve_dice.unwrap_or("d6".into()); //TODO Home Rules; rule-wise: d10
-            if user_data.lang == LocaleLang::Polski {
-                improve_dice = improve_dice.replace('d', "k");
-            }
-            if improve_result.success_level == SuccessLevel::Success {
-                let res;
-                {
-                    let mut rng = RealRng::new();
-                    res = roll_impl(&mut rng, &improve_dice)?;
-                }
-                let skill_value = skill.value;
-                let skill_new_value = skill_value + res.result();
-                character
-                    .set_skill(&name, skill_new_value)
-                    .map_err(|e| e.to_string(user_data.lang))?;
-
-                mc.title = format!("{}\n{}", mc.title, name);
-                mc.description = format!(
-                    "{}\n{} + **{}** ({}) = **{}**",
-                    mc.description,
-                    skill_value,
-                    res.result(),
-                    improve_dice,
-                    skill_new_value
-                );
-            }
-        } else {
-            mc = MessageContent {
-                title: format!(
-                    "**{}** {}.",
-                    name,
-                    locale_text_by_tag_lang(user_data.lang, LocaleTag::NotMarked)
-                ),
+        if skills.is_empty() {
+            let mc = MessageContent {
+                title: locale_text_by_tag_lang(user_data.lang, LocaleTag::NotMarked),
                 ..Default::default()
             };
             ephemeral = true;
+            mcs.push(mc);
+        } else {
+            for (name, skill) in skills {
+                if skill.improvable && skill.to_improve {
+                    let improve_result = improve_skill(skill.value);
+                    let mut mc = MessageContent::from_improve(user_data.lang, &improve_result);
+                    skill.to_improve = false;
+
+                    let mut improve_dice = improve_dice.clone().unwrap_or("d6".into()); //TODO Home Rules; rule-wise: d10
+                    if user_data.lang == LocaleLang::Polski {
+                        improve_dice = improve_dice.replace('d', "k");
+                    }
+                    if improve_result.success_level == SuccessLevel::Success {
+                        let res;
+                        {
+                            let mut rng = RealRng::new();
+                            res = roll_impl(&mut rng, &improve_dice)?;
+                        }
+                        let skill_value = skill.value;
+                        let skill_new_value = skill_value + res.result();
+                        skill.set(skill_new_value).map_err(|e| e.to_string(user_data.lang))?;
+
+                        mc.title = format!("{}\n{}", mc.title, name);
+                        mc.description = format!(
+                            "{}\n{} + **{}** ({}) = **{}**",
+                            mc.description,
+                            skill_value,
+                            res.result(),
+                            improve_dice,
+                            skill_new_value
+                        );
+                        mcs.push(mc);
+                    }
+                }
+            }
         }
     }
 
-    ctx.send(CreateReply::default().embed(mc.to_embed()).ephemeral(ephemeral))
-        .await?;
+    for mc in mcs {
+        ctx.send(CreateReply::default().embed(mc.to_embed()).ephemeral(ephemeral))
+            .await?;
+    }
+
     ctx.data().data.write().await.save().await
 }
 

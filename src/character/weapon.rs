@@ -205,7 +205,7 @@ impl Ammo {
             rounds_to_load = self.loose_rounds;
         }
 
-        self.clip_rounds = rounds_to_load;
+        self.clip_rounds += rounds_to_load;
         self.loose_rounds -= rounds_to_load;
 
         Ok(WeaponOk::Loaded(rounds_to_load))

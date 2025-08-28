@@ -4,7 +4,7 @@ use crate::{
     commands::basic::croll_impl,
     locale::*,
     message::MessageContent,
-    roller::{dice_rng::RealRng, roll::roll_impl, success_level::SuccessLevel},
+    roller::{dice_rng::RealRng, improve_roll::improve_skill, roll::roll_impl, success_level::SuccessLevel},
     types::*,
 };
 use poise::CreateReply;
@@ -229,6 +229,64 @@ pub async fn luck_cmd(
                 );
                 character.set_attribute("power", new_power);
             }
+        }
+    }
+
+    ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
+
+    ctx.data().data.write().await.save().await
+}
+
+#[poise::command(slash_command, rename = "improve_luck", name_localized("pl", "rozwiń_szczęście"))]
+pub async fn improve_luck_cmd(ctx: poise::Context<'_, ContextData, Error>) -> Result<(), Error> {
+    let mut mc;
+
+    {
+        let user_id = ctx.author().id.get();
+        let mut data = ctx.data().data.write().await;
+        let user_data = data.users.entry(user_id).or_default();
+        let character_name = user_data
+            .active_character
+            .clone()
+            .ok_or(locale_text_by_tag_lang(user_data.lang, LocaleTag::NoCharacterSelected))?;
+        let character = user_data.characters.get_mut(&character_name).ok_or(format!(
+            "{}: `{}`",
+            locale_text_by_tag_lang(user_data.lang, LocaleTag::CharacterNotFound),
+            &character_name
+        ))?;
+
+        let improve_result = improve_skill(character.luck.current);
+        mc = MessageContent::from_improve(user_data.lang, &improve_result);
+
+        let improve_query = match (
+            character.pulp_archetype.is_some(),
+            (improve_result.success_level >= SuccessLevel::Success),
+        ) {
+            (true, true) => Some(String::from("2d10+10")),
+            (true, false) => Some(String::from("1d10+5")),
+            (false, true) => Some(String::from("1d10")),
+            _ => None,
+        };
+
+        if let Some(mut iq) = improve_query {
+            let luck_delta;
+            {
+                let mut rng = RealRng::new();
+                luck_delta = roll_impl(&mut rng, &iq)?;
+                character.luck.modify(luck_delta.result());
+            }
+
+            if user_data.lang == LocaleLang::Polski {
+                iq = iq.replace('d', "k");
+            }
+
+            mc.description = format!(
+                "{}\n🍀 **{:+}** ({})\n{}",
+                mc.description,
+                luck_delta.result(),
+                iq,
+                character.status_luck()
+            )
         }
     }
 

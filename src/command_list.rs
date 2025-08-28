@@ -3,6 +3,8 @@ use crate::commands::basic::roll_cmd;
 #[cfg(feature = "character-sheet")]
 use crate::commands::character::fight::fight_cmd;
 #[cfg(feature = "character-sheet")]
+use crate::commands::character::stats::improve_luck_cmd;
+#[cfg(feature = "character-sheet")]
 use crate::commands::{
     character::sheet_cmd,
     gm::character::{
@@ -181,6 +183,7 @@ pub fn command_list() -> Vec<Command<ContextData, Error>> {
                 "Roll Luck check or modify Luck Points",
                 "",
             ),
+            cmd_with_meta(improve_luck_cmd(), CommandCategory::Character, "Roll Luck improve", ""),
             cmd_with_meta(
                 spot_hidden_cmd(),
                 CommandCategory::Character,
