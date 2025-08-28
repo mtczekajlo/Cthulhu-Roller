@@ -12,7 +12,7 @@ use crate::{
     roller::{
         dice_rng::RealRng,
         modifier_dice::ModifierDiceType,
-        roll::{get_roll_max, merge_roll_results, roll_impl},
+        roll::{get_roll_max, merge_roll_results, roll_die, roll_impl},
         success_level::SuccessLevel,
     },
     types::*,
@@ -160,10 +160,17 @@ pub async fn fight_cmd(
             } else if let Some(malfunction) = weapon_malfunction
                 && croll_result.result() >= malfunction
             {
+                let jammed_rounds;
+                {
+                    let mut rng = RealRng::new();
+                    jammed_rounds = roll_die(&mut rng, 6);
+                }
                 mc.description = format!(
-                    "{}\n**{}**",
+                    "{}\n**{}**\n{}: **{}**",
                     mc.description,
-                    locale_text_by_tag_lang(user_lang, LocaleTag::WeaponJammed)
+                    locale_text_by_tag_lang(user_lang, LocaleTag::WeaponJammed),
+                    locale_text_by_tag_lang(user_lang, LocaleTag::RoundsToUnjam),
+                    jammed_rounds
                 );
             }
 

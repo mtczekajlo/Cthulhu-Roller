@@ -315,6 +315,7 @@ pub enum LocaleTag {
     YouBlackOut,
     YouFell,
     YouGotLuckyThisTIme,
+    RoundsToUnjam,
 }
 
 pub fn locale_entry(tag: LocaleTag, en: &'static str, pl: &'static str) -> (LocaleTag, LocaleEntry) {
@@ -694,6 +695,11 @@ lazy_static! {
         locale_entry(LocaleTag::Value, "Value", "Wartość"),
         locale_entry(LocaleTag::Weapon, "weapon", "broń"),
         locale_entry(LocaleTag::WeaponJammed, "Weapon has jammed!", "Broń się zacięła!"),
+        locale_entry(
+            LocaleTag::RoundsToUnjam,
+            "Rounds needed to unjam",
+            "Rundy potrzebne do odcięcia"
+        ),
         locale_entry(LocaleTag::Weapons, "Weapons", "Broń"),
         locale_entry(LocaleTag::YouBlackOut, "You black out", "Tracisz przytomność."),
         locale_entry(LocaleTag::YouFell, "You fell.", "Upadasz."),
