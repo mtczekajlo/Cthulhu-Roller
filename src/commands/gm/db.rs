@@ -12,7 +12,7 @@ use poise::{
 #[poise::command(
     slash_command,
     rename = "gmquicksave",
-    name_localized("pl", "gmszybkizapis"),
+    aliases("gmszybkizapis"),
     check = "is_user_gm"
 )]
 pub async fn gmquicksave_cmd(ctx: Context<'_>) -> Result<(), Error> {
@@ -35,7 +35,7 @@ pub async fn gmquicksave_cmd(ctx: Context<'_>) -> Result<(), Error> {
 #[poise::command(
     slash_command,
     rename = "gmquickload",
-    name_localized("pl", "gmszybkiodczyt"),
+    aliases("gmszybkiodczyt"),
     check = "is_user_gm"
 )]
 pub async fn gmquickload_cmd(ctx: Context<'_>) -> Result<(), Error> {
@@ -59,7 +59,7 @@ pub async fn gmquickload_cmd(ctx: Context<'_>) -> Result<(), Error> {
     prefix_command,
     slash_command,
     rename = "gmdatabase",
-    name_localized("pl", "gmbazadanych"),
+    aliases("gmbazadanych"),
     check = "is_user_gm"
 )]
 pub async fn gmdatabase_cmd(

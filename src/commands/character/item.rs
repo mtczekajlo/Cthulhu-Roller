@@ -11,14 +11,14 @@ use poise::CreateReply;
     prefix_command,
     slash_command,
     rename = "item",
-    name_localized("pl", "przedmiot"),
+    aliases("przedmiot"),
     subcommands("list_cmd", "add_cmd", "give_cmd", "remove_cmd")
 )]
 pub async fn item_cmd(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, rename = "list", name_localized("pl", "lista"))]
+#[poise::command(prefix_command, slash_command, rename = "list", aliases("lista"))]
 async fn list_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mc;
     {
@@ -43,7 +43,7 @@ async fn list_cmd(ctx: Context<'_>) -> Result<(), Error> {
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "add", name_localized("pl", "dodaj"))]
+#[poise::command(prefix_command, slash_command, rename = "add", aliases("dodaj"))]
 async fn add_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_items"]
@@ -99,7 +99,7 @@ async fn add_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "remove", name_localized("pl", "usuń"))]
+#[poise::command(prefix_command, slash_command, rename = "remove", aliases("usuń"))]
 async fn remove_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_items"]
@@ -159,7 +159,7 @@ async fn remove_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "give", name_localized("pl", "daj"))]
+#[poise::command(prefix_command, slash_command, rename = "give", aliases("daj"))]
 async fn give_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_items"]

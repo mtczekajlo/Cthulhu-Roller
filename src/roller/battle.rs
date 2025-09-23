@@ -37,9 +37,25 @@ impl Battle {
         self.current_position %= self.characters.len();
     }
 
-    pub fn add_character(&mut self, character: CharacterInitiative) {
-        self.characters.push(character);
+    pub fn add_characters(&mut self, characters: &[CharacterInitiative]) -> Result<(), String> {
+        for character in characters {
+            self.add_character(character)?;
+        }
+        Ok(())
+    }
+
+    pub fn add_character(&mut self, character: &CharacterInitiative) -> Result<(), String> {
+        if self
+            .characters
+            .iter()
+            .map(|el| &el.name)
+            .any(|el| el.eq_ignore_ascii_case(&character.name))
+        {
+            return Err(format!("Character `{}` already in battle!", character.name));
+        }
+        self.characters.push(character.clone());
         self.characters.sort();
+        Ok(())
     }
 
     pub fn remove_character(&mut self, name: &str) -> Result<(), String> {
@@ -47,7 +63,7 @@ impl Battle {
             .characters
             .iter()
             .position(|c| c.name.eq(name))
-            .ok_or("Character not found.")?;
+            .ok_or(format!("Character `{}` not found.", name))?;
         self.characters.remove(position);
         Ok(())
     }

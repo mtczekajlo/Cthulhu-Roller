@@ -1,5 +1,5 @@
 use crate::bot_data::ContextData;
-use crate::commands::basic::roll_cmd;
+use crate::commands::basic::{about_cmd, add_to_fight_cmd, remove_from_fight_cmd, roll_cmd};
 #[cfg(feature = "character-sheet")]
 use crate::commands::character::fight::fight_cmd;
 #[cfg(feature = "character-sheet")]
@@ -123,6 +123,18 @@ pub fn command_list() -> Vec<Command<ContextData, Error>> {
             "Previous battle round",
             "",
         ),
+        cmd_with_meta(
+            add_to_fight_cmd(),
+            CommandCategory::Basic,
+            "Add characters to battle",
+            "",
+        ),
+        cmd_with_meta(
+            remove_from_fight_cmd(),
+            CommandCategory::Basic,
+            "Remove character from battle",
+            "",
+        ),
         cmd_with_meta(end_battle_cmd(), CommandCategory::Basic, "End battle", ""),
         cmd_with_meta(
             improve_test_cmd(),
@@ -142,6 +154,7 @@ pub fn command_list() -> Vec<Command<ContextData, Error>> {
             "Roll attributes (characteristics) for character creation",
             "",
         ),
+        cmd_with_meta(about_cmd(), CommandCategory::Basic, "About Cthulhu Roller", ""),
     ];
 
     #[cfg(feature = "character-sheet")]

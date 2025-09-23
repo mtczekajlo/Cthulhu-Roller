@@ -2,6 +2,7 @@
 pub mod character;
 #[cfg(feature = "character-sheet")]
 pub use character::*;
+use itertools::Itertools;
 
 use crate::{bot_data::UserData, locale::LOCALE_ATTRIBUTES, types::Context};
 
@@ -31,4 +32,20 @@ pub async fn autocomplete_attributes<'a>(ctx: Context<'a>, partial: &'a str) -> 
         .collect();
     attributes.sort();
     attributes
+}
+
+pub async fn autocomplete_battle<'a>(ctx: Context<'a>, partial: &'a str) -> Vec<String> {
+    let data = ctx.data().data.read().await;
+    if let Some(battle) = &data.battle {
+        battle
+            .characters
+            .iter()
+            .map(|el| &el.name)
+            .filter(|el| el.to_ascii_lowercase().contains(&partial.to_ascii_lowercase()))
+            .sorted()
+            .cloned()
+            .collect()
+    } else {
+        vec![]
+    }
 }

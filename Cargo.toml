@@ -1,8 +1,12 @@
 [package]
 name = "cthulhu-roller"
-version = "0.6.0"
+description = "Cthulhu Roller is a Call of Cthulhu RPG 7e dice roller bot for Discord."
+version = "0.7.0"
 edition = "2024"
 publish = false
+authors = ["Marcin Czekajło <mtczekajlo@gmail.com>"]
+repository = "https://gitlab.com/mtczekajlo/cthulhu-roller"
+license = "MIT"
 
 [features]
 default = ["character-sheet"]

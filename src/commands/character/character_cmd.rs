@@ -15,25 +15,25 @@ use poise::CreateReply;
     slash_command,
     subcommands("create", "select", "remove", "reset", "pulp_talent"),
     rename = "character",
-    name_localized("pl", "postać")
+    aliases("postać")
 )]
 pub async fn character_cmd(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
 #[allow(clippy::too_many_arguments)]
-#[poise::command(prefix_command, slash_command, name_localized("pl", "stwórz"))]
+#[poise::command(prefix_command, slash_command, aliases("stwórz"))]
 async fn create(
     ctx: Context<'_>,
     #[name_localized("pl", "imię")] name: String,
-    #[name_localized("pl", "siła")] str: i32,
-    #[name_localized("pl", "kondycja")] con: i32,
-    #[name_localized("pl", "budowa_ciała")] siz: i32,
-    #[name_localized("pl", "zręczność")] dex: i32,
-    #[name_localized("pl", "wygląd")] app: i32,
-    #[name_localized("pl", "inteligencja")] int: i32,
+    #[name_localized("pl", "s")] str: i32,
+    #[name_localized("pl", "kon")] con: i32,
+    #[name_localized("pl", "bc")] siz: i32,
+    #[name_localized("pl", "zr")] dex: i32,
+    #[name_localized("pl", "wyg")] app: i32,
+    #[name_localized("pl", "int")] int: i32,
     #[name_localized("pl", "moc")] pow: i32,
-    #[name_localized("pl", "wykształcenie")] edu: i32,
+    #[name_localized("pl", "wyk")] edu: i32,
     #[name_localized("pl", "szczęście")] luck: i32,
     #[autocomplete = "autocomplete_pulp_archetypes"]
     #[name_localized("pl", "pulpowy_archetyp")]
@@ -69,7 +69,7 @@ async fn create(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, name_localized("pl", "usuń"))]
+#[poise::command(prefix_command, slash_command, aliases("usuń"))]
 async fn remove(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_character"]
@@ -104,7 +104,7 @@ async fn remove(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, name_localized("pl", "wybierz"))]
+#[poise::command(prefix_command, slash_command, aliases("wybierz"))]
 async fn select(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_character"]
@@ -140,7 +140,7 @@ async fn select(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, name_localized("pl", "zresetuj"))]
+#[poise::command(prefix_command, slash_command, aliases("zresetuj"))]
 async fn reset(ctx: Context<'_>) -> Result<(), Error> {
     let mc;
     {
@@ -174,14 +174,14 @@ async fn reset(ctx: Context<'_>) -> Result<(), Error> {
 #[poise::command(
     prefix_command,
     slash_command,
-    name_localized("pl", "pulp_talent"),
+    aliases("pulp_talent"),
     subcommands("pulp_talent_add", "pulp_talent_remove")
 )]
 async fn pulp_talent(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(prefix_command, slash_command, name_localized("pl", "dodaj"), rename = "add")]
+#[poise::command(prefix_command, slash_command, aliases("dodaj"), rename = "add")]
 async fn pulp_talent_add(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_pulp_talents"]
@@ -219,7 +219,7 @@ async fn pulp_talent_add(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, name_localized("pl", "usuń"), rename = "remove")]
+#[poise::command(prefix_command, slash_command, aliases("usuń"), rename = "remove")]
 async fn pulp_talent_remove(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_pulp_talents"]

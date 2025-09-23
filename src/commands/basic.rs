@@ -2,7 +2,7 @@ use crate::roller::croll::CrollResult;
 use crate::roller::improve_roll::improve_skill;
 use crate::{
     bot_data::*,
-    commands::autocomplete::autocomplete_attributes,
+    commands::autocomplete::{autocomplete_attributes, autocomplete_battle},
     locale::{LocaleLang, LocaleTag, locale_text_by_tag_lang},
     message::MessageContent,
     roller::{
@@ -13,10 +13,11 @@ use crate::{
     },
     types::*,
 };
+use itertools::Itertools;
 use poise::CreateReply;
 use regex::Regex;
 
-#[poise::command(slash_command, rename = "language", name_localized("pl", "język"))]
+#[poise::command(prefix_command, slash_command, rename = "language", aliases("język"))]
 pub async fn language_cmd(ctx: Context<'_>, #[name_localized("pl", "język")] language: String) -> Result<(), Error> {
     let message_content;
     {
@@ -64,7 +65,7 @@ pub fn croll_impl(query: &str) -> Result<CrollResult, Error> {
     croll(query, threshold, penalty, bonus)
 }
 
-#[poise::command(slash_command, track_edits, rename = "croll")]
+#[poise::command(prefix_command, slash_command, rename = "croll")]
 pub async fn croll_cmd(ctx: Context<'_>, #[name_localized("pl", "próg")] threshold: String) -> Result<(), Error> {
     let message_content;
 
@@ -87,7 +88,7 @@ pub async fn croll_cmd(ctx: Context<'_>, #[name_localized("pl", "próg")] thresh
     Ok(())
 }
 
-#[poise::command(slash_command, track_edits, rename = "hcroll")]
+#[poise::command(prefix_command, slash_command, rename = "hcroll")]
 pub async fn hcroll_cmd(ctx: Context<'_>, #[name_localized("pl", "próg")] threshold: String) -> Result<(), Error> {
     let message_content;
 
@@ -110,12 +111,7 @@ pub async fn hcroll_cmd(ctx: Context<'_>, #[name_localized("pl", "próg")] thres
     Ok(())
 }
 
-#[poise::command(
-    slash_command,
-    rename = "improve_test",
-    name_localized("pl", "test_rozwoju"),
-    track_edits
-)]
+#[poise::command(prefix_command, slash_command, rename = "improve_test", aliases("test_rozwoju"))]
 pub async fn improve_test_cmd(
     ctx: Context<'_>,
     #[name_localized("pl", "próg")] threshold: String,
@@ -140,7 +136,7 @@ pub async fn improve_test_cmd(
     Ok(())
 }
 
-#[poise::command(slash_command, track_edits, rename = "roll")]
+#[poise::command(prefix_command, slash_command, rename = "roll")]
 pub async fn roll_cmd(ctx: Context<'_>, #[name_localized("pl", "kości")] dice: String) -> Result<(), Error> {
     let message_content;
 
@@ -167,7 +163,7 @@ pub async fn roll_cmd(ctx: Context<'_>, #[name_localized("pl", "kości")] dice: 
     Ok(())
 }
 
-#[poise::command(slash_command, track_edits, rename = "hroll")]
+#[poise::command(prefix_command, slash_command, rename = "hroll")]
 pub async fn hroll_cmd(ctx: Context<'_>, #[name_localized("pl", "kości")] dice: String) -> Result<(), Error> {
     let message_content;
 
@@ -194,15 +190,10 @@ pub async fn hroll_cmd(ctx: Context<'_>, #[name_localized("pl", "kości")] dice:
     Ok(())
 }
 
-#[poise::command(
-    slash_command,
-    rename = "initiative",
-    name_localized("pl", "inicjatywa"),
-    track_edits
-)]
+#[poise::command(prefix_command, slash_command, rename = "initiative", aliases("inicjatywa"))]
 pub async fn initiative_cmd(ctx: Context<'_>, #[name_localized("pl", "lista")] list: String) -> Result<(), Error> {
     let words: Vec<&str> = list.split_whitespace().collect();
-    if words.len() % 2 != 0 {
+    if !words.len().is_multiple_of(2) {
         ctx.send(
             CreateReply::default()
                 .embed(
@@ -235,6 +226,13 @@ pub async fn initiative_cmd(ctx: Context<'_>, #[name_localized("pl", "lista")] l
             let name = pair[0];
             let threshold = pair[1];
             let skill_result = croll_impl(threshold)?;
+            if characters
+                .iter()
+                .map(|el| &el.name)
+                .any(|el| el.eq_ignore_ascii_case(name))
+            {
+                return Err(format!("Non-unique character list: `{}`", list).into());
+            }
             characters.push(CharacterInitiative {
                 croll_result: skill_result,
                 name: name.to_string(),
@@ -242,8 +240,8 @@ pub async fn initiative_cmd(ctx: Context<'_>, #[name_localized("pl", "lista")] l
         }
         battle = Battle::new(characters);
 
-        message_content_a = MessageContent::from_battle(user_lang, &battle, true);
-        message_content_b = MessageContent::from_battle(user_lang, &battle, false);
+        message_content_a = MessageContent::from_battle(user_lang, &battle, true, None);
+        message_content_b = MessageContent::from_battle(user_lang, &battle, false, None);
     }
     {
         let mut data = ctx.data().data.write().await;
@@ -261,12 +259,7 @@ pub async fn initiative_cmd(ctx: Context<'_>, #[name_localized("pl", "lista")] l
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(
-    slash_command,
-    rename = "next_round",
-    name_localized("pl", "następna_runda"),
-    track_edits
-)]
+#[poise::command(prefix_command, slash_command, rename = "next_round", aliases("następna_runda"))]
 pub async fn next_round_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mut message_content = None;
 
@@ -281,7 +274,7 @@ pub async fn next_round_cmd(ctx: Context<'_>) -> Result<(), Error> {
 
         if let Some(battle) = &mut data.battle {
             battle.next_round();
-            message_content = Some(MessageContent::from_battle(user_lang, battle, true));
+            message_content = Some(MessageContent::from_battle(user_lang, battle, true, None));
         }
     }
 
@@ -295,10 +288,10 @@ pub async fn next_round_cmd(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "previous_round",
-    name_localized("pl", "poprzednia_runda"),
-    track_edits
+    aliases("poprzednia_runda")
 )]
 pub async fn previous_round_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mut message_content = None;
@@ -314,7 +307,7 @@ pub async fn previous_round_cmd(ctx: Context<'_>) -> Result<(), Error> {
 
         if let Some(battle) = &mut data.battle {
             battle.previous_round();
-            message_content = Some(MessageContent::from_battle(user_lang, battle, true));
+            message_content = Some(MessageContent::from_battle(user_lang, battle, true, None));
         }
     }
 
@@ -327,12 +320,7 @@ pub async fn previous_round_cmd(ctx: Context<'_>) -> Result<(), Error> {
     Err("No active battle".into())
 }
 
-#[poise::command(
-    slash_command,
-    rename = "end_battle",
-    name_localized("pl", "koniec_walki"),
-    track_edits
-)]
+#[poise::command(prefix_command, slash_command, rename = "end_battle", aliases("koniec_walki"))]
 pub async fn end_battle_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let message_content;
 
@@ -362,7 +350,99 @@ pub async fn end_battle_cmd(ctx: Context<'_>) -> Result<(), Error> {
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "levels", name_localized("pl", "poziomy"), track_edits)]
+#[poise::command(prefix_command, slash_command, rename = "add_to_fight", aliases("dołącz_do_walki"))]
+pub async fn add_to_fight_cmd(ctx: Context<'_>, list: String) -> Result<(), Error> {
+    let words: Vec<&str> = list.split_whitespace().collect();
+    if !words.len().is_multiple_of(2) {
+        ctx.send(
+            CreateReply::default()
+                .embed(
+                    MessageContent {
+                        description: format!("Query must contain pairs of `Name` and `Dex` thresholds: \"{list}\""),
+                        ..Default::default()
+                    }
+                    .to_embed(),
+                )
+                .ephemeral(true),
+        )
+        .await?;
+        return Ok(());
+    }
+
+    let message_content_a;
+    let message_content_b;
+    {
+        let user_id = ctx.author().id.get();
+        let mut data = ctx.data().data.write().await;
+        let user_data = data.users.get(&user_id);
+        let user_lang = match user_data {
+            Some(ud) => ud.lang,
+            None => LocaleLang::default(),
+        };
+
+        if let Some(battle) = &mut data.battle {
+            let mut characters: Vec<CharacterInitiative> = vec![];
+            for pair in words.chunks(2) {
+                let name = pair[0];
+                let threshold = pair[1];
+                let skill_result = croll_impl(threshold)?;
+                characters.push(CharacterInitiative {
+                    croll_result: skill_result,
+                    name: name.to_string(),
+                });
+            }
+            battle.add_characters(&characters)?;
+
+            let add_mes = Some(format!("**⚔️ {}**", characters.iter().map(|el| &el.name).join(", ")));
+
+            message_content_a = MessageContent::from_battle(user_lang, battle, true, add_mes.clone());
+            message_content_b = MessageContent::from_battle(user_lang, battle, false, add_mes.clone());
+        } else {
+            return Err("No active battle".into());
+        }
+    }
+
+    ctx.send(CreateReply::default().embed(message_content_a.to_embed()))
+        .await?;
+    ctx.send(
+        CreateReply::default()
+            .embed(message_content_b.to_embed())
+            .ephemeral(true),
+    )
+    .await?;
+    ctx.data().data.write().await.save().await
+}
+
+#[poise::command(prefix_command, slash_command, rename = "remove_from_fight", aliases("usuń_z_walki"))]
+pub async fn remove_from_fight_cmd(
+    ctx: Context<'_>,
+    #[autocomplete = "autocomplete_battle"] name: String,
+) -> Result<(), Error> {
+    let message_content;
+    {
+        let user_id = ctx.author().id.get();
+        let mut data = ctx.data().data.write().await;
+        let user_data = data.users.get(&user_id);
+        let user_lang = match user_data {
+            Some(ud) => ud.lang,
+            None => LocaleLang::default(),
+        };
+
+        if let Some(battle) = &mut data.battle {
+            battle.remove_character(&name)?;
+
+            message_content = MessageContent::from_battle(user_lang, battle, true, Some(format!("**💀 {}**", name)));
+        } else {
+            return Err("No active battle".into());
+        }
+    }
+
+    ctx.send(CreateReply::default().embed(message_content.to_embed()))
+        .await?;
+    ctx.data().data.write().await.save().await
+}
+
+#[poise::command(prefix_command, slash_command, rename = "levels", aliases("poziomy"))]
 pub async fn levels_cmd(ctx: Context<'_>, #[name_localized("pl", "próg")] threshold: String) -> Result<(), Error> {
     let threshold = threshold.parse::<i32>()?;
     let message_content = MessageContent::from_levels(threshold);
@@ -371,7 +451,7 @@ pub async fn levels_cmd(ctx: Context<'_>, #[name_localized("pl", "próg")] thres
     Ok(())
 }
 
-#[poise::command(slash_command, rename = "roll_attributes", name_localized("pl", "rzuć_cechy"))]
+#[poise::command(prefix_command, slash_command, rename = "roll_attributes", aliases("rzuć_cechy"))]
 pub async fn roll_attributes_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_attributes"]
@@ -407,6 +487,24 @@ pub async fn roll_attributes_cmd(
     }
 
     let message_content = MessageContent::from_attributes_result(user_lang, attribute_roll_result);
+
+    ctx.send(CreateReply::default().embed(message_content.to_embed()))
+        .await?;
+
+    Ok(())
+}
+
+#[poise::command(prefix_command, slash_command, rename = "about", aliases("o_programie"))]
+pub async fn about_cmd(ctx: Context<'_>) -> Result<(), Error> {
+    let message_content = MessageContent {
+        title: format!("**{} {}**", std::env!("CARGO_PKG_NAME"), std::env!("CARGO_PKG_VERSION")),
+        description: format!(
+            "{}\n\n{}",
+            std::env!("CARGO_PKG_DESCRIPTION"),
+            std::env!("CARGO_PKG_REPOSITORY"),
+        ),
+        ..Default::default()
+    };
 
     ctx.send(CreateReply::default().embed(message_content.to_embed()))
         .await?;

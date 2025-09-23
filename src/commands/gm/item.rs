@@ -11,14 +11,14 @@ use poise::CreateReply;
     prefix_command,
     slash_command,
     rename = "gmitem",
-    name_localized("pl", "gmprzedmiot"),
+    aliases("gmprzedmiot"),
     subcommands("add_cmd", "remove_cmd")
 )]
 pub async fn gmitem_cmd(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(prefix_command, slash_command, rename = "add", name_localized("pl", "dodaj"))]
+#[poise::command(prefix_command, slash_command, rename = "add", aliases("dodaj"))]
 async fn add_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_any_active_character"]
@@ -78,7 +78,7 @@ async fn add_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "remove", name_localized("pl", "usuń"))]
+#[poise::command(prefix_command, slash_command, rename = "remove", aliases("usuń"))]
 async fn remove_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_any_active_character"]

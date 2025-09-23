@@ -10,7 +10,7 @@ use poise::CreateReply;
     prefix_command,
     slash_command,
     rename = "gmcharacter",
-    name_localized("pl", "gmpostać"),
+    aliases("gmpostać"),
     subcommands("remove_cmd", "reset_cmd")
 )]
 pub async fn gmcharacter_cmd(_: Context<'_>) -> Result<(), Error> {
@@ -21,7 +21,7 @@ pub async fn gmcharacter_cmd(_: Context<'_>) -> Result<(), Error> {
     prefix_command,
     slash_command,
     rename = "remove",
-    name_localized("pl", "usuń"),
+    aliases("usuń"),
     check = "is_user_gm"
 )]
 async fn remove_cmd(
@@ -65,7 +65,7 @@ async fn remove_cmd(
     prefix_command,
     slash_command,
     rename = "reset",
-    name_localized("pl", "zresetuj"),
+    aliases("zresetuj"),
     check = "is_user_gm"
 )]
 async fn reset_cmd(

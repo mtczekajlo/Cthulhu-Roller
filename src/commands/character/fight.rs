@@ -20,7 +20,7 @@ use crate::{
 use itertools::{Itertools, any, enumerate};
 use poise::{CreateReply, serenity_prelude::CreateActionRow};
 
-#[poise::command(slash_command, rename = "fight", name_localized("pl", "walka"))]
+#[poise::command(prefix_command, slash_command, rename = "fight", aliases("walka"))]
 pub async fn fight_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_weapons"]
@@ -307,7 +307,7 @@ pub async fn fight_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "damage", name_localized("pl", "obrażenia"))]
+#[poise::command(prefix_command, slash_command, rename = "damage", aliases("obrażenia"))]
 pub async fn damage_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_weapons"]

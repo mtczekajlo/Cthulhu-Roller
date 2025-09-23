@@ -10,14 +10,14 @@ use poise::CreateReply;
     prefix_command,
     slash_command,
     rename = "add",
-    name_localized("pl", "dodaj"),
+    aliases("dodaj"),
     subcommands("basic_cmd", "specialized_cmd",)
 )]
 pub async fn add_cmd(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(prefix_command, slash_command, rename = "basic", name_localized("pl", "podstawowa"))]
+#[poise::command(prefix_command, slash_command, rename = "basic", aliases("podstawowa"))]
 async fn basic_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_additional_skills"]
@@ -57,12 +57,7 @@ async fn basic_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(
-    prefix_command,
-    slash_command,
-    rename = "specialized",
-    name_localized("pl", "specjalizacja")
-)]
+#[poise::command(prefix_command, slash_command, rename = "specialized", aliases("specjalizacja"))]
 async fn specialized_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_specialized_skills"]

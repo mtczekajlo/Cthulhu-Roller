@@ -16,15 +16,14 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     slash_command,
     rename = "attribute",
-    aliases("characteristic"),
-    name_localized("pl", "cecha"),
+    aliases("characteristic", "atrybut", "cecha"),
     subcommands("check_cmd", "set_cmd")
 )]
 pub async fn attribute_cmd(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, rename = "set", name_localized("pl", "ustaw"))]
+#[poise::command(prefix_command, slash_command, rename = "set", aliases("ustaw"))]
 async fn set_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_attributes"]
@@ -61,7 +60,7 @@ async fn set_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "check", name_localized("pl", "test"))]
+#[poise::command(prefix_command, slash_command, rename = "check", aliases("test"))]
 async fn check_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_attributes"]

@@ -11,7 +11,7 @@ use poise::CreateReply;
     prefix_command,
     slash_command,
     rename = "weapon",
-    name_localized("pl", "broń"),
+    aliases("broń"),
     subcommands(
         "list_cmd",
         "add_cmd",
@@ -26,7 +26,7 @@ pub async fn weapon_cmd(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(prefix_command, slash_command, rename = "list", name_localized("pl", "lista"))]
+#[poise::command(prefix_command, slash_command, rename = "list", aliases("lista"))]
 async fn list_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mc;
     {
@@ -51,7 +51,7 @@ async fn list_cmd(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 #[allow(clippy::too_many_arguments)]
-#[poise::command(prefix_command, slash_command, rename = "add", name_localized("pl", "dodaj"))]
+#[poise::command(prefix_command, slash_command, rename = "add", aliases("dodaj"))]
 async fn add_cmd(
     ctx: Context<'_>,
     #[name_localized("pl", "nazwa")] name: String,
@@ -128,7 +128,7 @@ async fn add_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "remove", name_localized("pl", "usuń"))]
+#[poise::command(prefix_command, slash_command, rename = "remove", aliases("usuń"))]
 async fn remove_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_weapons"]
@@ -168,7 +168,7 @@ async fn remove_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "give", name_localized("pl", "daj"))]
+#[poise::command(prefix_command, slash_command, rename = "give", aliases("daj"))]
 async fn give_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_weapons"]
@@ -248,7 +248,7 @@ async fn give_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "reload", name_localized("pl", "przeładuj"))]
+#[poise::command(prefix_command, slash_command, rename = "reload", aliases("przeładuj"))]
 pub async fn reload_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_weapons"]
@@ -292,12 +292,7 @@ pub async fn reload_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(
-    prefix_command,
-    slash_command,
-    rename = "add_ammo",
-    name_localized("pl", "dodaj_amunicję")
-)]
+#[poise::command(prefix_command, slash_command, rename = "add_ammo", aliases("dodaj_amunicję"))]
 pub async fn add_ammo_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_weapons"]
@@ -342,12 +337,7 @@ pub async fn add_ammo_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(
-    prefix_command,
-    slash_command,
-    rename = "remove_ammo",
-    name_localized("pl", "usuń_amunicję")
-)]
+#[poise::command(prefix_command, slash_command, rename = "remove_ammo", aliases("usuń_amunicję"))]
 pub async fn remove_ammo_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_weapons"]
