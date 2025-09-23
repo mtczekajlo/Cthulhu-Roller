@@ -28,9 +28,10 @@ pub async fn is_user_gm(ctx: Context<'_>) -> Result<bool, Error> {
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gmsheet",
-    name_localized("pl", "gmkarta"),
+    aliases("gmkarta"),
     check = "is_user_gm"
 )]
 pub async fn gmsheet_cmd(
@@ -75,9 +76,10 @@ pub async fn gmsheet_cmd(
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gmstatus",
-    name_localized("pl", "gmstatus"),
+    aliases("gmstatus"),
     check = "is_user_gm"
 )]
 pub async fn gmstatus_cmd(ctx: Context<'_>) -> Result<(), Error> {
@@ -114,9 +116,10 @@ pub async fn gmstatus_cmd(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gminsane",
-    name_localized("pl", "gmoszalej"),
+    aliases("gmoszalej"),
     check = "is_user_gm"
 )]
 pub async fn gminsane_cmd(
@@ -172,9 +175,10 @@ pub async fn gminsane_cmd(
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gmsane",
-    name_localized("pl", "gmotrzeźwiej"),
+    aliases("gmotrzeźwiej"),
     check = "is_user_gm"
 )]
 pub async fn gmsane_cmd(
@@ -230,9 +234,10 @@ pub async fn gmsane_cmd(
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gmwound",
-    name_localized("pl", "gmzrań"),
+    aliases("gmzrań"),
     check = "is_user_gm"
 )]
 pub async fn gmwound_cmd(
@@ -288,9 +293,10 @@ pub async fn gmwound_cmd(
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gmheal",
-    name_localized("pl", "gmulecz"),
+    aliases("gmulecz"),
     check = "is_user_gm"
 )]
 pub async fn gmheal_cmd(
@@ -346,9 +352,10 @@ pub async fn gmheal_cmd(
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gmkill",
-    name_localized("pl", "gmzabij"),
+    aliases("gmzabij"),
     check = "is_user_gm"
 )]
 pub async fn gmkill_cmd(
@@ -400,9 +407,10 @@ pub async fn gmkill_cmd(
 }
 
 #[poise::command(
+    prefix_command,
     slash_command,
     rename = "gmrevive",
-    name_localized("pl", "gmwskrześ"),
+    aliases("gmwskrześ"),
     check = "is_user_gm"
 )]
 pub async fn gmrevive_cmd(
@@ -452,7 +460,7 @@ pub async fn gmrevive_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "gmhp", name_localized("pl", "gmpw"))]
+#[poise::command(prefix_command, slash_command, rename = "gmhp", aliases("gmpw"))]
 pub async fn gmhp_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_any_active_character"]
@@ -477,9 +485,7 @@ pub async fn gmhp_cmd(
         for user_data in data.users.values_mut() {
             if let Some(character) = user_data.characters.get_mut(&name) {
                 character_name = Some(character.name.clone());
-                let delta = delta.replace(' ', "").parse::<i32>()?;
-                mc = Some(hp_impl(character, delta, gm_lang)?);
-
+                mc = Some(hp_impl(character, &delta, gm_lang)?);
                 break;
             }
         }
@@ -499,7 +505,7 @@ pub async fn gmhp_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "gmsan", name_localized("pl", "gmpp"))]
+#[poise::command(prefix_command, slash_command, rename = "gmsan", aliases("gmpp"))]
 pub async fn gmsan_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_any_active_character"]
@@ -524,9 +530,7 @@ pub async fn gmsan_cmd(
         for user_data in data.users.values_mut() {
             if let Some(character) = user_data.characters.get_mut(&name) {
                 character_name = Some(character.name.clone());
-                let delta = delta.replace(' ', "").parse::<i32>()?;
-                mc = Some(san_impl(character, delta, gm_lang)?);
-
+                mc = Some(san_impl(character, &delta, gm_lang)?);
                 break;
             }
         }

@@ -4,7 +4,7 @@ use crate::{
     types::*,
 };
 
-#[poise::command(slash_command, rename = "spot_hidden", name_localized("pl", "spostrzegawczość"))]
+#[poise::command(prefix_command, slash_command, rename = "spot_hidden", aliases("spostrzegawczość"))]
 pub async fn spot_hidden_cmd(
     ctx: Context<'_>,
     #[name_localized("pl", "dodatkowe_kości")] modifier_dice: Option<String>,
@@ -12,7 +12,7 @@ pub async fn spot_hidden_cmd(
     skill_impl_tag(ctx, LocaleTag::SpotHidden, &modifier_dice.as_deref()).await
 }
 
-#[poise::command(slash_command, rename = "listen", name_localized("pl", "nasłuchiwanie"))]
+#[poise::command(prefix_command, slash_command, rename = "listen", aliases("nasłuchiwanie"))]
 pub async fn listen_cmd(
     ctx: Context<'_>,
     #[name_localized("pl", "dodatkowe_kości")] modifier_dice: Option<String>,
@@ -20,7 +20,7 @@ pub async fn listen_cmd(
     skill_impl_tag(ctx, LocaleTag::Listen, &modifier_dice.as_deref()).await
 }
 
-#[poise::command(slash_command, rename = "dodge", name_localized("pl", "unik"))]
+#[poise::command(prefix_command, slash_command, rename = "dodge", aliases("unik"))]
 pub async fn dodge_cmd(
     ctx: Context<'_>,
     #[name_localized("pl", "dodatkowe_kości")] modifier_dice: Option<String>,
@@ -28,7 +28,7 @@ pub async fn dodge_cmd(
     skill_impl_tag(ctx, LocaleTag::Dodge, &modifier_dice.as_deref()).await
 }
 
-#[poise::command(slash_command, rename = "maneuver", name_localized("pl", "manewr"))]
+#[poise::command(prefix_command, slash_command, rename = "maneuver", aliases("manewr"))]
 pub async fn maneuver_cmd(
     ctx: Context<'_>,
     #[name_localized("pl", "krzepa_celu")] target_build: Option<i32>,

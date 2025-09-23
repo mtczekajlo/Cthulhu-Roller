@@ -10,7 +10,7 @@ use poise::CreateReply;
 #[poise::command(
     prefix_command,
     slash_command,
-    name_localized("pl", "gmbroń"),
+    aliases("gmbroń"),
     subcommands("add", "remove"),
     rename = "gmweapon"
 )]
@@ -19,7 +19,7 @@ pub async fn gmweapon_cmd(_: Context<'_>) -> Result<(), Error> {
 }
 
 #[allow(clippy::too_many_arguments)]
-#[poise::command(slash_command, name_localized("pl", "dodaj"))]
+#[poise::command(prefix_command, slash_command, aliases("dodaj"))]
 async fn add(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_any_active_character"]
@@ -104,7 +104,7 @@ async fn add(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, name_localized("pl", "usuń"))]
+#[poise::command(prefix_command, slash_command, aliases("usuń"))]
 async fn remove(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_any_active_character"]

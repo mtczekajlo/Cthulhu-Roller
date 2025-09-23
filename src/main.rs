@@ -24,7 +24,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use types::{Context, Error, FrameworkError};
 
-#[poise::command(slash_command, name_localized("pl", "pomoc"), track_edits)]
+#[poise::command(prefix_command, slash_command, aliases("pomoc"))]
 pub async fn help(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_help"] command: Option<String>,

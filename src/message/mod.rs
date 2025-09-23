@@ -156,7 +156,12 @@ impl MessageContent {
         self
     }
 
-    pub fn from_battle(lang: LocaleLang, battle: &Battle, hide_details: bool) -> Self {
+    pub fn from_battle(
+        lang: LocaleLang,
+        battle: &Battle,
+        hide_details: bool,
+        additional_message: Option<String>,
+    ) -> Self {
         let mut current_character_name = None;
         let mut table = tabled::builder::Builder::new();
 
@@ -216,6 +221,9 @@ impl MessageContent {
         let table = table.build().with(Style::empty()).to_string();
 
         let mut out = String::new();
+        if let Some(additional_message) = additional_message {
+            out.push_str(format!("{}\n\n", additional_message).as_str());
+        }
         if let Some(current_character_name) = current_character_name {
             out.push_str(format!("➡️ **{current_character_name}**\n").as_str());
         }

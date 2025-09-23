@@ -15,7 +15,7 @@ use crate::{
 };
 use poise::CreateReply;
 
-#[poise::command(slash_command, rename = "status", name_localized("pl", "status"))]
+#[poise::command(prefix_command, slash_command, rename = "status", aliases("status"))]
 pub async fn status_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mc;
     {
@@ -43,7 +43,7 @@ pub async fn status_cmd(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, rename = "sheet", name_localized("pl", "karta"))]
+#[poise::command(prefix_command, slash_command, rename = "sheet", aliases("karta"))]
 pub async fn sheet_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mcs;
     {
@@ -70,7 +70,7 @@ pub async fn sheet_cmd(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, rename = "sleep", name_localized("pl", "śpij"))]
+#[poise::command(prefix_command, slash_command, rename = "sleep", aliases("śpij"))]
 pub async fn sleep_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mc;
     {

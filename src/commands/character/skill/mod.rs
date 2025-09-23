@@ -15,7 +15,7 @@ use poise::CreateReply;
     prefix_command,
     slash_command,
     rename = "skill",
-    name_localized("pl", "umiejętność"),
+    aliases("umiejętność"),
     subcommands(
         "list_cmd",
         "check_cmd",
@@ -32,7 +32,7 @@ pub async fn skill_cmd(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(prefix_command, slash_command, rename = "list", name_localized("pl", "lista"))]
+#[poise::command(prefix_command, slash_command, rename = "list", aliases("lista"))]
 async fn list_cmd(ctx: Context<'_>) -> Result<(), Error> {
     let mcs;
     {
@@ -60,7 +60,7 @@ async fn list_cmd(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(prefix_command, slash_command, rename = "check", name_localized("pl", "test"))]
+#[poise::command(prefix_command, slash_command, rename = "check", aliases("test"))]
 async fn check_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_skills_with_additional"]
@@ -72,7 +72,7 @@ async fn check_cmd(
     Ok(())
 }
 
-#[poise::command(prefix_command, slash_command, rename = "set", name_localized("pl", "ustaw"))]
+#[poise::command(prefix_command, slash_command, rename = "set", aliases("ustaw"))]
 async fn set_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_skills"]
@@ -120,7 +120,7 @@ async fn set_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "change", name_localized("pl", "zmiana"))]
+#[poise::command(prefix_command, slash_command, rename = "change", aliases("zmiana"))]
 async fn change_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_skills"]
@@ -194,7 +194,7 @@ async fn change_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "remove", name_localized("pl", "usuń"))]
+#[poise::command(prefix_command, slash_command, rename = "remove", aliases("usuń"))]
 async fn remove_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_custom_skills"]
@@ -232,7 +232,7 @@ async fn remove_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "improve", name_localized("pl", "rozwiń"))]
+#[poise::command(prefix_command, slash_command, rename = "improve", aliases("rozwiń"))]
 async fn improve_cmd(
     ctx: Context<'_>,
     #[name_localized("pl", "kość_rozwoju")] improve_dice: Option<String>,
@@ -312,7 +312,7 @@ async fn improve_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "mark", name_localized("pl", "zaznacz"))]
+#[poise::command(prefix_command, slash_command, rename = "mark", aliases("zaznacz"))]
 async fn mark_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_skills"]
@@ -356,7 +356,7 @@ async fn mark_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(prefix_command, slash_command, rename = "unmark", name_localized("pl", "odznacz"))]
+#[poise::command(prefix_command, slash_command, rename = "unmark", aliases("odznacz"))]
 async fn unmark_cmd(
     ctx: Context<'_>,
     #[autocomplete = "autocomplete_my_improvable_skills"]

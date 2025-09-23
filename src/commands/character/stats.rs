@@ -9,16 +9,23 @@ use crate::{
 };
 use poise::CreateReply;
 
-pub fn hp_impl(character: &mut Character, delta: i32, lang: LocaleLang) -> Result<MessageContent, Error> {
-    character.hp.modify(delta);
+pub fn hp_impl(character: &mut Character, delta: &str, lang: LocaleLang) -> Result<MessageContent, Error> {
+    let roll_result;
+    {
+        let mut rng = RealRng::new();
+        roll_result = roll_query(&mut rng, delta)?;
+    }
+    let delta_res = roll_result.result_real();
+
+    character.hp.modify(delta_res);
 
     let mut additional_desc = String::new();
-    if delta < -(character.hp.max) {
+    if delta_res < -(character.hp.max) {
         character.dead = true;
         character.major_wound = false;
         additional_desc = format!("\n\n**{}**", locale_text_by_tag_lang(lang, LocaleTag::DeathInevitable));
     } else {
-        if delta <= -(character.hp.max / 2) {
+        if delta_res <= -(character.hp.max / 2) {
             character.major_wound = true;
             additional_desc = format!("\n\n**{}**", locale_text_by_tag_lang(lang, LocaleTag::MajorWound));
             if character.hp.current > 0 {
@@ -56,15 +63,21 @@ pub fn hp_impl(character: &mut Character, delta: i32, lang: LocaleLang) -> Resul
 
     let mc = MessageContent {
         title: format!("`{}`", character.name),
-        description: format!("❤️ **{:+}**\n{}{}", delta, character.status_hp(), additional_desc),
+        description: format!(
+            "❤️ **{:+}** ({:+})\n{}{}",
+            delta_res,
+            delta,
+            character.status_hp(),
+            additional_desc
+        ),
         ..Default::default()
     };
 
     Ok(mc)
 }
 
-#[poise::command(slash_command, rename = "hp", name_localized("pl", "pw"))]
-pub async fn hp_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delta: i32) -> Result<(), Error> {
+#[poise::command(prefix_command, slash_command, rename = "hp", aliases("pw"))]
+pub async fn hp_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delta: String) -> Result<(), Error> {
     let mc;
     {
         let user_id = ctx.author().id.get();
@@ -80,7 +93,7 @@ pub async fn hp_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delta: i
             &character_name
         ))?;
 
-        mc = hp_impl(character, delta, user_data.lang)?;
+        mc = hp_impl(character, &delta, user_data.lang)?;
     }
 
     ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
@@ -88,16 +101,23 @@ pub async fn hp_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delta: i
     ctx.data().data.write().await.save().await
 }
 
-pub fn san_impl(character: &mut Character, delta: i32, lang: LocaleLang) -> Result<MessageContent, Error> {
-    character.sanity.modify(delta);
+pub fn san_impl(character: &mut Character, delta: &str, lang: LocaleLang) -> Result<MessageContent, Error> {
+    let roll_result;
+    {
+        let mut rng = RealRng::new();
+        roll_result = roll_query(&mut rng, delta)?;
+    }
+    let delta_res = roll_result.result_real();
+
+    character.sanity.modify(delta_res);
 
     let mut additional_desc = String::new();
     if character.sanity.current == 0 {
         character.insane = true;
         additional_desc = format!("\n\n**{}**", locale_text_by_tag_lang(lang, LocaleTag::MindShattered));
-    } else if character.fragile_mind && delta < 0 {
+    } else if character.fragile_mind && delta_res < 0 {
         additional_desc = format!("\n\n**{}**", locale_text_by_tag_lang(lang, LocaleTag::TempInsanity));
-    } else if delta <= -5 {
+    } else if delta_res <= -5 {
         additional_desc = format!(
             "\n\n**{}**\n{}",
             locale_text_by_tag_lang(lang, LocaleTag::TempInsanityThreat),
@@ -112,15 +132,24 @@ pub fn san_impl(character: &mut Character, delta: i32, lang: LocaleLang) -> Resu
 
     let mc = MessageContent {
         title: format!("`{}`", character.name),
-        description: format!("🧠 **{:+}**\n{}{}", delta, character.status_sanity(), additional_desc),
+        description: format!(
+            "🧠 **{:+}** ({:+})\n{}{}",
+            delta_res,
+            delta,
+            character.status_sanity(),
+            additional_desc
+        ),
         ..Default::default()
     };
 
     Ok(mc)
 }
 
-#[poise::command(slash_command, rename = "sanity", name_localized("pl", "poczytalność"))]
-pub async fn sanity_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delta: Option<i32>) -> Result<(), Error> {
+#[poise::command(prefix_command, slash_command, rename = "sanity", aliases("poczytalność"))]
+pub async fn sanity_cmd(
+    ctx: Context<'_>,
+    #[name_localized("pl", "zmiana")] delta: Option<String>,
+) -> Result<(), Error> {
     let mc;
 
     {
@@ -138,7 +167,7 @@ pub async fn sanity_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delt
         ))?;
 
         if let Some(delta) = &delta {
-            mc = san_impl(character, *delta, user_data.lang)?;
+            mc = san_impl(character, delta, user_data.lang)?;
         } else {
             let sanity_str = locale_text_by_tag_lang(user_data.lang, LocaleTag::Sanity);
             let sanity_result = croll_impl(&character.sanity.current.to_string())?;
@@ -153,7 +182,7 @@ pub async fn sanity_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delt
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "luck", name_localized("pl", "szczęście"))]
+#[poise::command(prefix_command, slash_command, rename = "luck", aliases("szczęście"))]
 pub async fn luck_cmd(
     ctx: poise::Context<'_, ContextData, Error>,
     #[name_localized("pl", "dodatkowe_kości")] modifier_dice: Option<String>,
@@ -176,16 +205,21 @@ pub async fn luck_cmd(
         ))?;
 
         if let Some(delta) = &delta {
-            let delta = delta.replace(' ', "").parse::<i32>()?;
+            let roll_result;
+            {
+                let mut rng = RealRng::new();
+                roll_result = roll_query(&mut rng, delta)?;
+            }
+            let delta_res = roll_result.result_real();
 
-            if delta < -character.luck.current {
+            if delta_res < -character.luck.current {
                 return Err(locale_text_by_tag_lang(user_data.lang, LocaleTag::CantSpendLuck).into());
             }
 
-            character.luck.modify(delta);
+            character.luck.modify(delta_res);
 
             mc.title = format!("`{}`", character.name);
-            mc.description = format!("🍀 **{:+}**\n{}", delta, character.status_luck());
+            mc.description = format!("🍀 **{:+}** ({:+})\n{}", delta_res, delta, character.status_luck());
         } else {
             let luck_str = locale_text_by_tag_lang(user_data.lang, LocaleTag::Luck);
             let luck_query = format!(
@@ -235,7 +269,7 @@ pub async fn luck_cmd(
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "improve_luck", name_localized("pl", "rozwiń_szczęście"))]
+#[poise::command(prefix_command, slash_command, rename = "improve_luck", aliases("rozwiń_szczęście"))]
 pub async fn improve_luck_cmd(ctx: poise::Context<'_, ContextData, Error>) -> Result<(), Error> {
     let mut mc;
 
@@ -293,7 +327,7 @@ pub async fn improve_luck_cmd(ctx: poise::Context<'_, ContextData, Error>) -> Re
     ctx.data().data.write().await.save().await
 }
 
-#[poise::command(slash_command, rename = "mp", name_localized("pl", "pm"))]
+#[poise::command(prefix_command, slash_command, rename = "mp", aliases("pm"))]
 pub async fn mp_cmd(
     ctx: poise::Context<'_, ContextData, Error>,
     #[name_localized("pl", "zmiana")] delta: i32,
