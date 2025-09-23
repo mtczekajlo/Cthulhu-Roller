@@ -58,9 +58,7 @@ async fn set_cmd(
 
     ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(slash_command, rename = "check", name_localized("pl", "test"))]

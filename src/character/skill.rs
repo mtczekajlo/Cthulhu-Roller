@@ -60,6 +60,10 @@ impl Skill {
         self.value = value;
         Ok(())
     }
+
+    pub fn modify(&mut self, value: i32) -> Result<(), SkillError> {
+        self.set(self.value + value)
+    }
 }
 
 pub enum SkillError {

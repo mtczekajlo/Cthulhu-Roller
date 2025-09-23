@@ -12,7 +12,7 @@ use crate::{
     roller::{
         dice_rng::RealRng,
         modifier_dice::ModifierDiceType,
-        roll::{get_roll_max, merge_roll_results, roll_die, roll_impl},
+        roll::{get_roll_max, merge_roll_results, roll_die, roll_query},
         success_level::SuccessLevel,
     },
     types::*,
@@ -359,11 +359,11 @@ pub async fn damage_cmd(
             let rr = match c {
                 'n' => {
                     let mut rng = RealRng::new();
-                    Some(roll_impl(&mut rng, &dmg_dice)?)
+                    Some(roll_query(&mut rng, &dmg_dice)?)
                 }
                 'e' => Some(if weapon.impaling {
                     let mut rng = RealRng::new();
-                    merge_roll_results(&[get_roll_max(&dmg_dice)?, roll_impl(&mut rng, &weapon_damage)?])?
+                    merge_roll_results(&[get_roll_max(&dmg_dice)?, roll_query(&mut rng, &weapon_damage)?])?
                 } else {
                     get_roll_max(&dmg_dice)?
                 }),
@@ -394,7 +394,5 @@ pub async fn damage_cmd(
         ctx.send(CreateReply::default().embed(message.to_embed())).await?;
     }
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }

@@ -9,7 +9,7 @@ use crate::{
         battle::{Battle, CharacterInitiative},
         croll::croll,
         dice_rng::RealRng,
-        roll::{roll_attributes, roll_impl},
+        roll::{roll_attributes, roll_query},
     },
     types::*,
 };
@@ -156,7 +156,7 @@ pub async fn roll_cmd(ctx: Context<'_>, #[name_localized("pl", "kości")] dice: 
         let roll_result;
         {
             let mut rng = RealRng::new();
-            roll_result = roll_impl(&mut rng, &dice)?
+            roll_result = roll_query(&mut rng, &dice)?
         }
 
         message_content = MessageContent::from_dice_result(user_lang, roll_result, false);
@@ -183,7 +183,7 @@ pub async fn hroll_cmd(ctx: Context<'_>, #[name_localized("pl", "kości")] dice:
         let roll_result;
         {
             let mut rng = RealRng::new();
-            roll_result = roll_impl(&mut rng, &dice)?
+            roll_result = roll_query(&mut rng, &dice)?
         }
 
         message_content = MessageContent::from_dice_result(user_lang, roll_result, true);

@@ -85,11 +85,11 @@ mod tests {
     #[case("k10-2-k10-2", 0)]
     #[case("k10x3-2-k10x3-2", 0)]
     fn test_roll_impl(#[case] query: &str, #[case] expected: i32) {
-        use crate::roller::roll::roll_impl;
+        use crate::roller::roll::roll_query;
 
         let mut mr = MockMockableDiceRng::new();
         mr.expect_random_range().returning(|_| 5);
-        let dr = roll_impl(&mut mr, query);
+        let dr = roll_query(&mut mr, query);
         let dr = dr.unwrap();
         dbg!(&dr);
         assert_eq!(dr.result(), expected);

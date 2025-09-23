@@ -268,6 +268,20 @@ impl Character {
         Ok(())
     }
 
+    pub fn modify_skill(&mut self, name: &str, value: i32) -> Result<(), SkillError> {
+        let skill = self
+            .skills
+            .iter_mut()
+            .find(|(_, v)| v.name.equals_ignore_case(name))
+            .ok_or(SkillError::NoSuchSkill(name.to_string()))?
+            .1;
+        skill.modify(value)?;
+        if skill.name.equals_ignore_case("Cthulhu Mythos") {
+            self.sanity.max = 99 - skill.value;
+        }
+        Ok(())
+    }
+
     pub fn remove_skill(&mut self, skill_name: &str) -> Result<(), SkillError> {
         if !self
             .skills
@@ -326,7 +340,12 @@ impl Character {
             comment = Some(" 😨")
         }
 
-        format!("🧠 **{}**{}", self.sanity.current, comment.unwrap_or_default(),)
+        format!(
+            "🧠 **{}**/{}{}",
+            self.sanity.current,
+            self.sanity.max,
+            comment.unwrap_or_default(),
+        )
     }
 
     pub fn status_sanity_raw(&self) -> String {
