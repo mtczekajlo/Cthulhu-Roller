@@ -206,7 +206,7 @@ pub fn get_roll_max(input: &str) -> Result<RollResult, Error> {
     merge_roll_results(&dice_results)
 }
 
-pub fn roll_impl<D: DiceRng>(rng: &mut D, query: &str) -> Result<RollResult, Error> {
+pub fn roll_query<D: DiceRng>(rng: &mut D, query: &str) -> Result<RollResult, Error> {
     let mut roll_results: Vec<RollResult> = vec![];
     for roll_regex in roll_parse(query)? {
         let roll_result = roll_dice(

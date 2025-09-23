@@ -40,9 +40,7 @@ async fn list_cmd(ctx: Context<'_>) -> Result<(), Error> {
     ctx.send(CreateReply::default().content(mc.to_content()).ephemeral(true))
         .await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(slash_command, rename = "add", name_localized("pl", "dodaj"))]
@@ -98,9 +96,7 @@ async fn add_cmd(
 
     ctx.send(CreateReply::default().embed(message.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(slash_command, rename = "remove", name_localized("pl", "usuń"))]
@@ -160,9 +156,7 @@ async fn remove_cmd(
 
     ctx.send(CreateReply::default().embed(message.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(slash_command, rename = "give", name_localized("pl", "daj"))]
@@ -259,7 +253,5 @@ async fn give_cmd(
         }
     }
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }

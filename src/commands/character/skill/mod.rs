@@ -5,7 +5,7 @@ use crate::{
     commands::{autocomplete::character::*, character::skill::skill_impl::skill_impl_str},
     locale::{LocaleLang, LocaleTag, locale_tag_by_str, locale_text_by_tag_lang},
     message::MessageContent,
-    roller::{dice_rng::RealRng, improve_roll::improve_skill, roll::roll_impl, success_level::SuccessLevel},
+    roller::{dice_rng::RealRng, improve_roll::improve_skill, roll::roll_query, success_level::SuccessLevel},
     types::{Context, Error},
 };
 use add::add_cmd;
@@ -21,6 +21,7 @@ use poise::CreateReply;
         "check_cmd",
         "add_cmd",
         "set_cmd",
+        "change_cmd",
         "remove_cmd",
         "improve_cmd",
         "mark_cmd",
@@ -116,9 +117,81 @@ async fn set_cmd(
 
     ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
+    ctx.data().data.write().await.save().await
+}
 
-    Ok(())
+#[poise::command(prefix_command, slash_command, rename = "change", name_localized("pl", "zmiana"))]
+async fn change_cmd(
+    ctx: Context<'_>,
+    #[autocomplete = "autocomplete_my_skills"]
+    #[name_localized("pl", "nazwa")]
+    name: String,
+    #[name_localized("pl", "wartość")] mut query: String,
+) -> Result<(), Error> {
+    let mut mc;
+    {
+        let user_id = ctx.author().id.get();
+        let mut data = ctx.data().data.write().await;
+        let user_data = data.users.entry(user_id).or_default();
+        let character_name = user_data
+            .active_character
+            .clone()
+            .ok_or(locale_text_by_tag_lang(user_data.lang, LocaleTag::NoCharacterSelected))?;
+        let character = user_data.characters.get_mut(&character_name).ok_or(format!(
+            "{}: `{}`",
+            locale_text_by_tag_lang(user_data.lang, LocaleTag::CharacterNotFound),
+            &character_name
+        ))?;
+
+        if user_data.lang == LocaleLang::Polski {
+            query = query.replace('d', "k");
+        }
+
+        let roll_result;
+        {
+            let mut rng = RealRng::new();
+            roll_result = roll_query(&mut rng, &query)?;
+        }
+
+        character
+            .modify_skill(&name, roll_result.result_real())
+            .map_err(|e| Error::from(e.to_string(user_data.lang)))?;
+
+        {
+            let skill = character.get_skill(&name).ok_or_else(|| {
+                format!(
+                    "{}: {}",
+                    locale_text_by_tag_lang(user_data.lang, LocaleTag::NoSuchSkill),
+                    name
+                )
+            })?;
+
+            mc = MessageContent {
+                title: format!("`{}`", character_name),
+                description: format!(
+                    "**{name}**\n{} **{:+}** = **{}** ({})",
+                    skill.value - roll_result.result_real(),
+                    roll_result.result_real(),
+                    skill.value,
+                    query,
+                ),
+                ..Default::default()
+            };
+        }
+
+        if locale_tag_by_str(&name) == Some(LocaleTag::CthulhuMythos) {
+            mc.description = format!(
+                "{}\n\n{} **{}**",
+                mc.description,
+                locale_text_by_tag_lang(user_data.lang, LocaleTag::MaxSanitySet),
+                character.sanity.max
+            );
+        }
+    }
+
+    ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
+
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(prefix_command, slash_command, rename = "remove", name_localized("pl", "usuń"))]
@@ -156,9 +229,7 @@ async fn remove_cmd(
 
     ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(prefix_command, slash_command, rename = "improve", name_localized("pl", "rozwiń"))]
@@ -211,7 +282,7 @@ async fn improve_cmd(
                         let res;
                         {
                             let mut rng = RealRng::new();
-                            res = roll_impl(&mut rng, &improve_dice)?;
+                            res = roll_query(&mut rng, &improve_dice)?;
                         }
                         let skill_value = skill.value;
                         let skill_new_value = skill_value + res.result();
@@ -219,12 +290,12 @@ async fn improve_cmd(
 
                         mc.title = format!("{}\n{}", mc.title, name);
                         mc.description = format!(
-                            "{}\n{} + **{}** ({}) = **{}**",
+                            "{}\n{} **{:+}** = **{}** ({})",
                             mc.description,
                             skill_value,
                             res.result(),
+                            skill_new_value,
                             improve_dice,
-                            skill_new_value
                         );
                         mcs.push(mc);
                     }

@@ -125,9 +125,7 @@ async fn add_cmd(
 
     ctx.send(CreateReply::default().embed(message.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(prefix_command, slash_command, rename = "remove", name_localized("pl", "usuń"))]
@@ -167,9 +165,7 @@ async fn remove_cmd(
         ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
     }
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(slash_command, rename = "give", name_localized("pl", "daj"))]
@@ -249,9 +245,7 @@ async fn give_cmd(
         }
     }
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(prefix_command, slash_command, rename = "reload", name_localized("pl", "przeładuj"))]
@@ -295,9 +289,7 @@ pub async fn reload_cmd(
         ctx.send(CreateReply::default().embed(message.to_embed())).await?;
     }
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(
@@ -347,9 +339,7 @@ pub async fn add_ammo_cmd(
         ctx.send(CreateReply::default().embed(message.to_embed())).await?;
     }
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(
@@ -399,7 +389,5 @@ pub async fn remove_ammo_cmd(
         ctx.send(CreateReply::default().embed(message.to_embed())).await?;
     }
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }

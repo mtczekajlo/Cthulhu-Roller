@@ -54,9 +54,7 @@ async fn basic_cmd(
 
     ctx.send(CreateReply::default().embed(message.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(
@@ -102,7 +100,5 @@ async fn specialized_cmd(
 
     ctx.send(CreateReply::default().embed(message.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }

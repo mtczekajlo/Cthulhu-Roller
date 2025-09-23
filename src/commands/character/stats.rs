@@ -4,7 +4,7 @@ use crate::{
     commands::basic::croll_impl,
     locale::*,
     message::MessageContent,
-    roller::{dice_rng::RealRng, improve_roll::improve_skill, roll::roll_impl, success_level::SuccessLevel},
+    roller::{dice_rng::RealRng, improve_roll::improve_skill, roll::roll_query, success_level::SuccessLevel},
     types::*,
 };
 use poise::CreateReply;
@@ -150,9 +150,7 @@ pub async fn sanity_cmd(ctx: Context<'_>, #[name_localized("pl", "zmiana")] delt
 
     ctx.send(CreateReply::default().embed(mc.to_embed())).await?;
 
-    ctx.data().data.write().await.save().await?;
-
-    Ok(())
+    ctx.data().data.write().await.save().await
 }
 
 #[poise::command(slash_command, rename = "luck", name_localized("pl", "szczęście"))]
@@ -210,7 +208,7 @@ pub async fn luck_cmd(
                 let res;
                 {
                     let mut rng = RealRng::new();
-                    res = roll_impl(&mut rng, &improve_dice)?;
+                    res = roll_query(&mut rng, &improve_dice)?;
                 }
                 mc.description = format!(
                     "{}\n\n**{}**",
@@ -272,7 +270,7 @@ pub async fn improve_luck_cmd(ctx: poise::Context<'_, ContextData, Error>) -> Re
             let luck_delta;
             {
                 let mut rng = RealRng::new();
-                luck_delta = roll_impl(&mut rng, &iq)?;
+                luck_delta = roll_query(&mut rng, &iq)?;
                 character.luck.modify(luck_delta.result());
             }
 
