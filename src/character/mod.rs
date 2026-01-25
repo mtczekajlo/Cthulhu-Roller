@@ -100,6 +100,7 @@ fn skill_constant_map_wrapper(tag: LocaleTag, val: i32) -> Result<(String, Skill
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct Character {
     pub name: String,
+    pub occupation: Option<String>,
     pub attributes: Attributes,
     pub build: i32,
     pub move_rate: i32,
@@ -141,12 +142,14 @@ impl Eq for Character {}
 impl Character {
     pub fn new(
         name: &str,
+        occupation: &Option<String>,
         attributes: Attributes,
         luck: i32,
         pulp_archetype: Option<LocaleEntry>,
     ) -> Result<Self, Error> {
         Ok(Character {
             name: name.into(),
+            occupation: occupation.clone(),
             magic: CharacterVariable::new_clamped(attributes.power() / 5),
             skills: default_skills(&attributes)?,
             move_rate: attributes.calculate_move_rate(),
