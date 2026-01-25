@@ -26,6 +26,7 @@ pub async fn character_cmd(_: Context<'_>) -> Result<(), Error> {
 async fn create(
     ctx: Context<'_>,
     #[name_localized("pl", "imię")] name: String,
+    #[name_localized("pl", "zawód")] occupation: Option<String>,
     #[name_localized("pl", "s")] str: i32,
     #[name_localized("pl", "kon")] con: i32,
     #[name_localized("pl", "bc")] siz: i32,
@@ -55,9 +56,10 @@ async fn create(
             let attributes = Attributes::new(str, con, siz, dex, app, int, pow, edu)?;
             let pulp_archetype =
                 pulp_archetype.map(|pulp_archetype| locale_entry_by_str(&pulp_archetype).unwrap().clone());
-            user_data
-                .characters
-                .insert(name.clone(), Character::new(&name, attributes, luck, pulp_archetype)?);
+            user_data.characters.insert(
+                name.clone(),
+                Character::new(&name, &occupation, attributes, luck, pulp_archetype)?,
+            );
             mc.title = format!("✅ `{name}`");
             user_data.active_character = Some(name);
         }

@@ -614,7 +614,18 @@ impl MessageContent {
     pub fn from_character_to_attributes(lang: LocaleLang, character: &Character) -> Self {
         let mut out = String::new();
 
-        out.push_str(format!("**{}**\t{}\n", &character.name, &character.status_one_line()).as_str());
+        out.push_str(format!("**{}**\n{}\n", &character.name, &character.status_one_line()).as_str());
+
+        if let Some(occupation) = &character.occupation {
+            out.push_str(
+                format!(
+                    "{}: **{}**\n",
+                    locale_text_by_tag_lang(lang, LocaleTag::Occupation),
+                    &occupation,
+                )
+                .as_str(),
+            );
+        }
 
         if let Some(archetype) = &character.pulp_archetype {
             out.push_str(

@@ -1,7 +1,7 @@
 [package]
 name = "cthulhu-roller"
 description = "Cthulhu Roller is a Call of Cthulhu RPG 7e dice roller bot for Discord."
-version = "0.7.0"
+version = "0.8.0"
 edition = "2024"
 publish = false
 authors = ["Marcin Czekajło <mtczekajlo@gmail.com>"]

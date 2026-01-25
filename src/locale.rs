@@ -228,6 +228,7 @@ pub enum LocaleTag {
     NoSuchWeapon,
     NotMarked,
     Occult,
+    Occupation,
     OperateHeavyMachinery,
     Outmaneuver,
     Outsider,
@@ -635,6 +636,7 @@ lazy_static! {
             "is not marked to be improved",
             "nie jest oznaczone do rozwinięcia"
         ),
+        locale_entry(LocaleTag::Occupation, "Occupation", "Zawód"),
         locale_entry(LocaleTag::Pcs, "pcs", "szt"),
         locale_entry(LocaleTag::Penalty, "➖ Penalty", "➖ Karne"),
         locale_entry(LocaleTag::PointsTo, "pts to", "pkt do"),
