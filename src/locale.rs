@@ -157,6 +157,7 @@ pub enum LocaleTag {
     Firearms,
     FirearmsHandgun,
     FirearmsRifleShotgun,
+    FirearmsSubMachineGun,
     FirstAid,
     FleetFooted,
     From,
@@ -388,6 +389,11 @@ lazy_static! {
             LocaleTag::FirearmsRifleShotgun,
             "Firearms (Rifle/Shotgun)",
             "Broń Palna (Karabin/Strzelba)"
+        ),
+        locale_entry(
+            LocaleTag::FirearmsSubMachineGun,
+            "Firearms (SMG)",
+            "Broń Palna (P. Maszynowy)"
         ),
         locale_entry(LocaleTag::FirstAid, "First Aid", "Pierwsza Pomoc"),
         locale_entry(LocaleTag::History, "History", "Historia"),
