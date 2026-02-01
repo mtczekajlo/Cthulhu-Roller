@@ -104,11 +104,11 @@ lazy_static! {
         (LocaleTag::Dodge, 0),
         (LocaleTag::DriveAuto, 20),
         (LocaleTag::ElectricalRepair, 10),
-        (LocaleTag::Electronics, 1),
         (LocaleTag::FastTalk, 5),
         (LocaleTag::FightingBrawl, 25),
         (LocaleTag::FirearmsHandgun, 20),
         (LocaleTag::FirearmsRifleShotgun, 25),
+        (LocaleTag::FirearmsSubMachineGun, 15),
         (LocaleTag::FirstAid, 30),
         (LocaleTag::History, 5),
         (LocaleTag::Intimidate, 15),
@@ -132,7 +132,7 @@ lazy_static! {
         (LocaleTag::SpotHidden, 25),
         (LocaleTag::Stealth, 20),
         (LocaleTag::Swim, 10),
-        (LocaleTag::Throw, 10),
+        (LocaleTag::Throw, 20),
         (LocaleTag::Track, 10),
     ]
     .into_iter()
@@ -143,6 +143,7 @@ lazy_static! {
         (LocaleTag::ComputerUse, 1),
         (LocaleTag::Demolitions, 1),
         (LocaleTag::Diving, 1),
+        (LocaleTag::Electronics, 1),
         (LocaleTag::Hypnosis, 1),
         (LocaleTag::ReadLips, 1),
     ]
