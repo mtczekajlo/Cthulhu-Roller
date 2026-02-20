@@ -17,15 +17,14 @@ cat >"${SERVICE_PATH}" <<EOF
 [Unit]
 Description=Cthulhu Roller
 After=network.target
+StartLimitIntervalSec=30
+StartLimitBurst=3
 
 [Service]
 ExecStart=${BOT_BINARY}
 WorkingDirectory=${BOT_DIR}
 Restart=always
 RestartSec=3s
-
-StartLimitIntervalSec=30
-StartLimitBurst=3
 
 [Install]
 WantedBy=default.target
