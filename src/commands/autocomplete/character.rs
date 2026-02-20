@@ -526,7 +526,6 @@ pub async fn autocomplete_my_pulp_talents<'a>(ctx: Context<'a>, partial: &'a str
         .pulp_talents
         .iter()
         .filter(|&lt| lt.partial_match_ignore_case(&partial.to_lowercase()))
-        .cloned()
         .map(|name| name.get(user_data.lang))
         .collect();
     talents.sort();

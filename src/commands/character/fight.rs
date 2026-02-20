@@ -172,6 +172,17 @@ pub async fn fight_cmd(
                     locale_text_by_tag_lang(user_lang, LocaleTag::RoundsToUnjam),
                     jammed_rounds
                 );
+            } else {
+                mc.description = format!(
+                    "{}\n\n{}",
+                    match croll_result.success_level {
+                        SuccessLevel::Success | SuccessLevel::HardSuccess => WeaponOk::Hit.to_string(user_lang),
+                        SuccessLevel::ExtremeSuccess | SuccessLevel::CriticalSuccess =>
+                            format!("**{}**", WeaponOk::CriticalHit.to_string(user_lang)),
+                        _ => WeaponOk::Miss.to_string(user_lang),
+                    },
+                    mc.description,
+                );
             }
 
             mcs.push((croll_result, mc, buttons, mark_to_improve));
@@ -313,10 +324,14 @@ pub async fn damage_cmd(
     #[autocomplete = "autocomplete_my_weapons"]
     #[name_localized("pl", "nazwa_broni")]
     weapon_name: String,
-    #[description = "'n' for normal, 'e' for extreme e.g. 'nne'"]
+    #[description = "'n' for normal, 'e' for extreme; e.g. 'nne'"]
+    #[description_localized("pl", "'n' dla normalnych, 'e' dla ekstremalnych; np. 'nne'")]
     #[name_localized("pl", "typy_obrażeń")]
     damage_types: Option<String>,
-    #[name_localized("pl", "dystans")] distance: Option<i32>,
+    #[name_localized("pl", "dystans")]
+    #[description = "distance in meters (~yards)"]
+    #[description_localized("pl", "dystans w metrach")]
+    distance: Option<i32>,
 ) -> Result<(), Error> {
     let damage_types = damage_types.unwrap_or('n'.to_string());
 

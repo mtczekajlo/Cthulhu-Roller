@@ -1,5 +1,5 @@
 default:
-  image: registry.gitlab.com/mtczekajlo/rust-docker-images/x86_64-unknown-linux-gnu:477cb826e57289d0233c0147c1414f09b88e63550f322a122d2b4759a6c1bbb3
+  image: registry.gitlab.com/mtczekajlo/rust-docker-images/x86_64-unknown-linux-gnu:f16071885a5a3253b239d4308aa26c9d4a5c108ed6fd256367972a83f8e925a1
 
 stages:
   - check-and-build

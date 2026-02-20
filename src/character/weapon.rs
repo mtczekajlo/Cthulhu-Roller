@@ -20,8 +20,10 @@ pub struct Weapon {
 
 pub enum WeaponOk {
     AddedRounds(i32),
+    CriticalHit,
     Hit,
     Loaded(i32),
+    Miss,
     RemovedRounds(i32),
     Shot(i32),
 }
@@ -29,16 +31,20 @@ pub enum WeaponOk {
 impl WeaponOk {
     pub fn to_string(&self, lang: LocaleLang) -> String {
         match (self, lang) {
-            (WeaponOk::AddedRounds(r), LocaleLang::Polski) => format!("Dodano {r} pocisków."),
-            (WeaponOk::AddedRounds(r), LocaleLang::English) => format!("Added {r} rounds."),
-            (WeaponOk::Hit, LocaleLang::English) => "Trafienie!".into(),
-            (WeaponOk::Hit, LocaleLang::Polski) => "Hit!".into(),
-            (WeaponOk::Loaded(r), LocaleLang::Polski) => format!("Załadowano {r} pocisków."),
-            (WeaponOk::Loaded(r), LocaleLang::English) => format!("Loaded {r} rounds."),
-            (WeaponOk::RemovedRounds(r), LocaleLang::Polski) => format!("Odjęto {r} pocisków."),
-            (WeaponOk::RemovedRounds(r), LocaleLang::English) => format!("Removed {r} rounds."),
-            (WeaponOk::Shot(r), LocaleLang::Polski) => format!("Wystrzelono {r} pocisków."),
-            (WeaponOk::Shot(r), LocaleLang::English) => format!("Shot {r} rounds."),
+            (WeaponOk::AddedRounds(r), LocaleLang::Polski) => format!("Dodano pocisków: {r}"),
+            (WeaponOk::AddedRounds(r), LocaleLang::English) => format!("Added rounds: {r}"),
+            (WeaponOk::CriticalHit, LocaleLang::Polski) => "Trafienie krytyczne!".into(),
+            (WeaponOk::CriticalHit, LocaleLang::English) => "Critical Hit!".into(),
+            (WeaponOk::Hit, LocaleLang::Polski) => "Trafienie!".into(),
+            (WeaponOk::Hit, LocaleLang::English) => "Hit!".into(),
+            (WeaponOk::Loaded(r), LocaleLang::Polski) => format!("Załadowano pocisków: {r}"),
+            (WeaponOk::Loaded(r), LocaleLang::English) => format!("Loaded rounds: {r}"),
+            (WeaponOk::Miss, LocaleLang::Polski) => "Pudło!".into(),
+            (WeaponOk::Miss, LocaleLang::English) => "Miss!".into(),
+            (WeaponOk::RemovedRounds(r), LocaleLang::Polski) => format!("Odjęto pocisków: {r}"),
+            (WeaponOk::RemovedRounds(r), LocaleLang::English) => format!("Removed rounds: {r}"),
+            (WeaponOk::Shot(r), LocaleLang::Polski) => format!("Wystrzelono pocisków: {r}"),
+            (WeaponOk::Shot(r), LocaleLang::English) => format!("Shot rounds: {r}"),
         }
     }
 }
