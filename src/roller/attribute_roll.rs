@@ -15,7 +15,7 @@ pub struct AttributeRollResult {
 
 impl AttributeRollResult {
     pub fn new<D: DiceRng>(rng: &mut D, pulp_core_attribute: Option<&str>) -> Self {
-        let mut rolls: HashMap<LocaleTag, RollResult> = vec![
+        let mut rolls: HashMap<LocaleTag, RollResult> = [
             (LocaleTag::Strength, roll_dice_no_query(rng, 3, 6, 1.0, 0)),
             (LocaleTag::Constitution, roll_dice_no_query(rng, 3, 6, 1.0, 0)),
             (LocaleTag::Size, roll_dice_no_query(rng, 2, 6, 1.0, 6)),
