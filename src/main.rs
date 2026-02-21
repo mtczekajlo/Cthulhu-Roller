@@ -156,6 +156,10 @@ async fn main() -> Result<(), Error> {
     Ok(client.start().await?)
 }
 
+fn any_to_str<T>(_: &T) -> String {
+    std::any::type_name::<T>().into()
+}
+
 async fn handle_error(error: FrameworkError<'_>) {
     match error {
         poise::FrameworkError::Command { ctx, error, .. } => {
@@ -179,6 +183,9 @@ async fn handle_error(error: FrameworkError<'_>) {
                 )
                 .await;
         }
-        error => eprintln!("{error}"),
+        error => {
+            eprintln!("{}: {error}", any_to_str(&error));
+            std::process::exit(1)
+        }
     }
 }

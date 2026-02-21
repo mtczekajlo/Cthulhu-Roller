@@ -27,28 +27,14 @@ async fn create(
     ctx: Context<'_>,
     #[name_localized("pl", "imię")] name: String,
     #[name_localized("pl", "zawód")] occupation: Option<String>,
-    #[rename = "STR"]
-    #[name_localized("pl", "S")]
-    str: i32,
-    #[rename = "CON"]
-    #[name_localized("pl", "KON")]
-    con: i32,
-    #[rename = "SIZ"]
-    #[name_localized("pl", "BC")]
-    siz: i32,
-    #[rename = "DEX"]
-    #[name_localized("pl", "ZR")]
-    dex: i32,
-    #[rename = "APP"]
-    #[name_localized("pl", "WYG")]
-    app: i32,
-    #[rename = "INT"] int: i32,
-    #[rename = "POW"]
-    #[name_localized("pl", "MOC")]
-    pow: i32,
-    #[rename = "EDU"]
-    #[name_localized("pl", "WYK")]
-    edu: i32,
+    #[name_localized("pl", "s")] str: i32,
+    #[name_localized("pl", "kon")] con: i32,
+    #[name_localized("pl", "bc")] siz: i32,
+    #[name_localized("pl", "zr")] dex: i32,
+    #[name_localized("pl", "wyg")] app: i32,
+    int: i32,
+    #[name_localized("pl", "moc")] pow: i32,
+    #[name_localized("pl", "wyk")] edu: i32,
     #[name_localized("pl", "szczęście")] luck: i32,
     #[autocomplete = "autocomplete_pulp_archetypes"]
     #[name_localized("pl", "pulpowy_archetyp")]
