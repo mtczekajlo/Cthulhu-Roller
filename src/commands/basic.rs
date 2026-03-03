@@ -471,8 +471,14 @@ pub async fn roll_attributes_cmd(
 
     let mut attribute_roll_result;
 
+    let mut i = 0;
     loop {
         attribute_roll_result = roll_attributes(pulp_core_attribute.as_deref());
+
+        if i > 1_000_000 {
+            return Err("🚫🎲".into());
+        }
+        i += 1;
 
         if quick_rules_sum.unwrap_or_default() && !attribute_roll_result.is_sum_eq_quick_rules() {
             continue;
@@ -480,7 +486,7 @@ pub async fn roll_attributes_cmd(
         if reroll_low_sum.unwrap_or_default() && attribute_roll_result.is_sum_lt_quick_rules() {
             continue;
         }
-        if attribute_roll_result.lowest_attribute_value() < min_attribute_value.unwrap_or_default() {
+        if attribute_roll_result.lowest_attribute_value() < min_attribute_value.unwrap_or(40) {
             continue;
         }
         break;
