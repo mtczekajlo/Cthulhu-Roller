@@ -4,6 +4,8 @@
 
 > This is an unofficial, fan-made, open-source project, not affiliated with or endorsed by [Chaosium](https://www.chaosium.com/) or [Black Monk Games](https://blackmonk.pl/). Trademarks and copyrights belong to their respective owners.
 
+*Also, see [Delta Green branch](https://gitlab.com/mtczekajlo/cthulhu-roller/-/tree/delta-green).*
+
 ## Installation
 
 [Discord OAuth2](https://discord.com/developers/docs/topics/oauth2)
@@ -14,12 +16,12 @@ and
 cp .env.example .env && vim .env
 ```
 
-For minimal feature list use `--no-default-features`.
+For character sheet functionalities use `--all-features`.
 
 For easy service installation use
 
 ```bash
-scripts/install-service.sh [--no-default-features]
+scripts/install-service.sh [--all-features]
 ```
 
 ## Usage
@@ -110,7 +112,7 @@ Examples: `40` `60`
 
 ### Extra features
 
-This bot also implements (enabled by default) character sheets creation with mechanics related to skills, stats, weapons, items etc.
+This bot also implements character sheet creation with mechanics related to skills, stats, weapons, items etc.
 
 ![help2](docs/help2.png)
 

@@ -4,4 +4,4 @@ set -Eeuo pipefail
 cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
 
 scripts/build --release
-scripts/build --release --no-default-features
+scripts/build --release --all-features

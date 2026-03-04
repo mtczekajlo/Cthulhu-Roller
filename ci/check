@@ -3,10 +3,11 @@ set -Eeuo pipefail
 
 cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
 
+scripts/cargo-sort
 scripts/format
 scripts/check
-scripts/check --no-default-features
+scripts/check --all-features
 scripts/clippy
-scripts/clippy --no-default-features
-scripts/cargo-sort
+scripts/clippy --all-features
 scripts/udeps
+scripts/udeps --all-features
