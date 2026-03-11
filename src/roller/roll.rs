@@ -19,9 +19,14 @@ pub struct RollRegex {
 impl RollRegex {
     pub fn new(dice_count: i32, dice_sides: i32, multiplier: f32, modifier: i32) -> Self {
         let query = format!(
-            "{}{}",
+            "{}{}{}",
             if dice_count != 0 {
                 format!("{}d{}", multiplier.signum() as i32 * dice_count, dice_sides)
+            } else {
+                "".into()
+            },
+            if multiplier != 1.0 {
+                format!("x{multiplier}")
             } else {
                 "".into()
             },
@@ -140,7 +145,7 @@ pub fn roll_parse(query: &str) -> Result<Vec<RollRegex>, Error> {
                 }
             };
             let multiplier = match captures.name("mult") {
-                Some(m) => m.as_str().replace(['x', '*'], "").parse()?,
+                Some(m) => m.as_str().replace(['*', 'x'], "").parse()?,
                 None => 1.0,
             } * sign as f32;
             let modifier = match captures.name("mod") {
