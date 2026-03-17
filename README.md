@@ -4,7 +4,7 @@
 
 > This is an unofficial, fan-made, open-source project, not affiliated with or endorsed by [Chaosium](https://www.chaosium.com/) or [Black Monk Games](https://blackmonk.pl/). Trademarks and copyrights belong to their respective owners.
 
-*Also, see [Delta Green branch](https://gitlab.com/mtczekajlo/cthulhu-roller/-/tree/delta-green).*
+*Also, see [Delta Green](https://gitlab.com/mtczekajlo/cthulhu-roller/-/tree/delta-green) and [Achtung! Cthulhu](https://gitlab.com/mtczekajlo/cthulhu-roller/-/tree/achtung-cthulhu) branches.*
 
 ## Installation
 
